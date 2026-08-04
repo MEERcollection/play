@@ -582,6 +582,13 @@
       vehicle.boughtPrice = parsedBought;
       vehicle.plateCost = parsedPlate;
       vehicle.notes = newNotes;
+      
+      // Recalculate 50% profit if vehicle was already sold
+      if (vehicle.isSold) {
+        const totalCost = vehicle.boughtPrice + (vehicle.plateCost || 0);
+        vehicle.profit = (vehicle.actualSellPrice - totalCost) / 2;
+      }
+
       saveAndRefresh();
     }
   }
@@ -607,9 +614,10 @@
     vehicle.actualSellPrice = actualSellPrice;
     vehicle.dateSold = new Date().toISOString().split('T')[0];
     
-    // Total Investment = Bought Price + Plate Cost
+    // Total Cost & 50% Partner Profit Split
     const totalCost = vehicle.boughtPrice + (vehicle.plateCost || 0);
-    vehicle.profit = vehicle.actualSellPrice - totalCost;
+    const totalNetProfit = vehicle.actualSellPrice - totalCost;
+    vehicle.profit = totalNetProfit / 2; // Divided by 2 for partner split
 
     saveAndRefresh();
   }
@@ -620,7 +628,7 @@
   }
 
   function updateUI() {
-    // Total Cost = Bought Price + Plate Cost for each active vehicle
+    // 1. Calculate Active Deductions from Capital
     const activeVehiclesTotalCost = vehicles
       .filter(v => !v.isSold)
       .reduce((sum, v) => sum + v.boughtPrice + (v.plateCost || 0), 0);
@@ -630,7 +638,7 @@
     document.getElementById('displayStartingCapital').textContent = `$${startingCapital.toLocaleString()}`;
     document.getElementById('displayAvailableCash').textContent = `$${availableCash.toLocaleString()}`;
 
-    // Render Capital Inventory Deductions
+    // 2. Capital Inventory Deductions
     const deductionsList = document.getElementById('deductionsList');
     deductionsList.innerHTML = '';
     const activeDeductions = vehicles.filter(v => !v.isSold);
@@ -657,7 +665,7 @@
       });
     }
 
-    // Profit Calculations
+    // 3. Profit Calculations (Reflects 50% Partner Split)
     const lifetimeProfit = vehicles
       .filter(v => v.isSold)
       .reduce((sum, v) => sum + v.profit, 0);
@@ -708,18 +716,20 @@
     } else {
       soldItems.forEach(v => {
         const totalCost = v.boughtPrice + (v.plateCost || 0);
+        const sign = v.profit >= 0 ? '+' : '';
         soldList.innerHTML += `
           <div class="list-item">
             <div>
               <div class="item-title">${v.title}</div>
               <div class="item-sub">Total Cost: $${totalCost.toLocaleString()} | Sold: $${v.actualSellPrice.toLocaleString()} (${v.dateSold})</div>
             </div>
-            <div class="profit-amount">+$${v.profit.toLocaleString()} Profit</div>
+            <div class="profit-amount">${sign}$${v.profit.toLocaleString()} Profit (50%)</div>
           </div>
         `;
       });
     }
   }
 </script>
+
 </body>
 </html>
