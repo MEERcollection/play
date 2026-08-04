@@ -1,2601 +1,660 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
-
-    <meta name="theme-color" content="#030817">
-
-    <title>Quick Buy & Sell</title>
-
-    <style>
-        :root {
-            --background: #030817;
-            --panel: #091123;
-            --panel-light: #0d172c;
-            --input: #050b18;
-            --border: #1b2942;
-            --text: #f8fafc;
-            --muted: #8190aa;
-            --blue: #4f83ff;
-            --orange: #ff9f0a;
-            --green: #4ade80;
-            --red: #ff6b72;
-            --purple: #a855f7;
-            --yellow: #facc15;
-            --nav-height: 82px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            min-height: 100vh;
-            padding-bottom: calc(var(--nav-height) + 30px);
-            background:
-                radial-gradient(
-                    circle at top right,
-                    rgba(79, 131, 255, 0.09),
-                    transparent 28%
-                ),
-                var(--background);
-            color: var(--text);
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Arial,
-                sans-serif;
-        }
-
-        button,
-        input,
-        select,
-        textarea {
-            font: inherit;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        .app {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 28px 16px 30px;
-        }
-
-        .page {
-            display: none;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            margin: 18px 0 28px;
-        }
-
-        .title {
-            font-size: clamp(34px, 8vw, 52px);
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1;
-        }
-
-        .title .blue {
-            color: var(--blue);
-        }
-
-        .title .purple {
-            color: var(--purple);
-        }
-
-        .subtitle {
-            margin-top: 12px;
-            color: var(--muted);
-            font-size: 16px;
-            line-height: 1.5;
-        }
-
-        .card {
-            margin-bottom: 20px;
-            padding: 22px;
-            border: 1px solid var(--border);
-            border-radius: 26px;
-            background: rgba(9, 17, 35, 0.96);
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.17);
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        .section-heading {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            font-size: 18px;
-            font-weight: 900;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-
-        .step {
-            display: grid;
-            width: 46px;
-            height: 46px;
-            flex-shrink: 0;
-            place-items: center;
-            border-radius: 50%;
-            background: var(--orange);
-            color: white;
-            font-size: 18px;
-            font-weight: 900;
-        }
-
-        .step.blue-step {
-            background: var(--blue);
-        }
-
-        .step.purple-step {
-            background: var(--purple);
-        }
-
-        .section-icon {
-            font-size: 30px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .full {
-            grid-column: 1 / -1;
-        }
-
-        .field {
-            position: relative;
-            min-width: 0;
-        }
-
-        .field-icon {
-            position: absolute;
-            top: 17px;
-            left: 17px;
-            display: grid;
-            width: 45px;
-            height: 45px;
-            place-items: center;
-            z-index: 2;
-            border: 1px solid #243758;
-            border-radius: 14px;
-            background: #101b32;
-            font-size: 22px;
-        }
-
-        .field label {
-            position: absolute;
-            top: 15px;
-            left: 77px;
-            z-index: 2;
-            color: var(--muted);
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 0.45px;
-            text-transform: uppercase;
-            pointer-events: none;
-        }
-
-        .field input,
-        .field select,
-        .field textarea {
-            width: 100%;
-            min-height: 80px;
-            padding: 34px 16px 13px 77px;
-            outline: none;
-            border: 1px solid var(--border);
-            border-radius: 21px;
-            background: var(--input);
-            color: var(--text);
-            font-size: 18px;
-            font-weight: 700;
-            transition:
-                border-color 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .field textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
-
-        .field input:focus,
-        .field select:focus,
-        .field textarea:focus {
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(79, 131, 255, 0.12);
-        }
-
-        .price-buy label {
-            color: var(--red);
-        }
-
-        .price-sell label {
-            color: var(--green);
-        }
-
-        .button {
-            width: 100%;
-            min-height: 66px;
-            border: none;
-            border-radius: 21px;
-            color: white;
-            font-size: 19px;
-            font-weight: 900;
-            transition:
-                transform 0.15s ease,
-                opacity 0.15s ease;
-        }
-
-        .button:active {
-            transform: scale(0.985);
-        }
-
-        .button.orange {
-            background: linear-gradient(135deg, #ffa600, #ed8600);
-        }
-
-        .button.purple {
-            background: linear-gradient(135deg, #a855f7, #7e22ce);
-        }
-
-        .button.blue {
-            background: linear-gradient(135deg, #4f83ff, #2555d9);
-        }
-
-        .button.green {
-            background: linear-gradient(135deg, #32d583, #16a25c);
-        }
-
-        .button.red {
-            background: linear-gradient(135deg, #ff626a, #dc3344);
-        }
-
-        .button.secondary {
-            border: 1px solid var(--border);
-            background: #10192b;
-        }
-
-        .button.small {
-            min-height: 46px;
-            padding: 0 16px;
-            border-radius: 15px;
-            font-size: 14px;
-        }
-
-        .button-row {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        .summary-box {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            min-height: 112px;
-            padding: 18px;
-            border: 1px solid var(--border);
-            border-radius: 23px;
-            background: var(--panel);
-        }
-
-        .summary-icon {
-            display: grid;
-            width: 54px;
-            height: 54px;
-            flex-shrink: 0;
-            place-items: center;
-            border-radius: 16px;
-            background: #111d36;
-            font-size: 25px;
-        }
-
-        .summary-label {
-            color: var(--muted);
-            font-size: 12px;
-            font-weight: 900;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-        }
-
-        .summary-value {
-            margin-top: 5px;
-            color: var(--green);
-            font-size: clamp(22px, 5vw, 31px);
-            font-weight: 900;
-            overflow-wrap: anywhere;
-        }
-
-        .summary-value.purple-value {
-            color: var(--purple);
-        }
-
-        .summary-value.blue-value {
-            color: var(--blue);
-        }
-
-        .summary-value.orange-value {
-            color: var(--orange);
-        }
-
-        .photo-input {
-            display: none;
-        }
-
-        .photo-button {
-            display: flex;
-            min-height: 74px;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 15px;
-            border: 1px dashed #38517d;
-            border-radius: 20px;
-            background: #07101f;
-            color: var(--text);
-            font-size: 17px;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-            margin-top: 14px;
-        }
-
-        .photo-item {
-            position: relative;
-            overflow: hidden;
-            aspect-ratio: 1.25 / 1;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            background: #050b18;
-        }
-
-        .photo-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .photo-remove {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            display: grid;
-            width: 30px;
-            height: 30px;
-            place-items: center;
-            border: none;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.75);
-            color: white;
-            font-size: 16px;
-        }
-
-        .search {
-            position: relative;
-            margin-bottom: 18px;
-        }
-
-        .search span {
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            font-size: 23px;
-        }
-
-        .search input {
-            width: 100%;
-            height: 68px;
-            padding: 0 20px 0 57px;
-            outline: none;
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            background: var(--panel);
-            color: white;
-            font-size: 17px;
-        }
-
-        .vehicle-list {
-            display: grid;
-            gap: 15px;
-        }
-
-        .vehicle-card {
-            overflow: hidden;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            background: var(--panel);
-        }
-
-        .vehicle-cover {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(79, 131, 255, 0.17),
-                    rgba(168, 85, 247, 0.08)
-                ),
-                #0a1325;
-        }
-
-        .vehicle-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .vehicle-placeholder {
-            display: grid;
-            width: 100%;
-            height: 100%;
-            place-items: center;
-            font-size: 70px;
-        }
-
-        .status-badge {
-            position: absolute;
-            top: 13px;
-            left: 13px;
-            padding: 8px 13px;
-            border-radius: 999px;
-            background: rgba(3, 8, 23, 0.88);
-            color: var(--green);
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-
-        .vehicle-content {
-            padding: 18px;
-        }
-
-        .vehicle-name {
-            font-size: 20px;
-            font-weight: 900;
-            line-height: 1.25;
-        }
-
-        .vehicle-meta {
-            margin-top: 7px;
-            color: var(--muted);
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .price-row {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 9px;
-            margin-top: 15px;
-        }
-
-        .price-box {
-            padding: 12px 8px;
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            background: var(--input);
-            text-align: center;
-        }
-
-        .price-box small {
-            display: block;
-            color: var(--muted);
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .price-box strong {
-            display: block;
-            margin-top: 4px;
-            font-size: 15px;
-            overflow-wrap: anywhere;
-        }
-
-        .profit-positive {
-            color: var(--green);
-        }
-
-        .profit-negative {
-            color: var(--red);
-        }
-
-        .inventory-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 12px;
-            padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: 17px;
-            background: var(--input);
-        }
-
-        .inventory-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .inventory-name {
-            font-size: 15px;
-            font-weight: 900;
-        }
-
-        .inventory-date {
-            margin-top: 4px;
-            color: var(--orange);
-            font-size: 13px;
-        }
-
-        .inventory-amount {
-            flex-shrink: 0;
-            color: var(--red);
-            font-size: 17px;
-            font-weight: 900;
-        }
-
-        .empty {
-            padding: 38px 20px;
-            border: 1px dashed var(--border);
-            border-radius: 22px;
-            color: var(--muted);
-            text-align: center;
-        }
-
-        .empty-icon {
-            margin-bottom: 10px;
-            font-size: 45px;
-        }
-
-        .empty-title {
-            color: white;
-            font-size: 18px;
-            font-weight: 900;
-        }
-
-        .empty-text {
-            margin-top: 7px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 1000;
-            height: var(--nav-height);
-            border-top: 1px solid var(--border);
-            background: rgba(3, 8, 23, 0.96);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-        }
-
-        .bottom-nav-inner {
-            display: grid;
-            width: 100%;
-            max-width: 900px;
-            height: 100%;
-            margin: 0 auto;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 3px;
-            padding: 7px;
-        }
-
-        .nav-item {
-            display: flex;
-            min-width: 0;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 4px;
-            border: none;
-            border-radius: 16px;
-            background: transparent;
-            color: var(--muted);
-        }
-
-        .nav-item.active {
-            background: #101b34;
-            color: var(--blue);
-        }
-
-        .nav-icon {
-            font-size: 23px;
-            line-height: 1;
-        }
-
-        .nav-label {
-            max-width: 100%;
-            font-size: 10px;
-            font-weight: 900;
-            white-space: nowrap;
-        }
-
-        .toast {
-            position: fixed;
-            right: 16px;
-            bottom: calc(var(--nav-height) + 18px);
-            left: 16px;
-            z-index: 2000;
-            max-width: 500px;
-            margin: auto;
-            padding: 15px 18px;
-            border: 1px solid var(--border);
-            border-radius: 17px;
-            background: #121d32;
-            color: white;
-            font-weight: 800;
-            text-align: center;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(20px);
-            transition: 0.25s ease;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            z-index: 3000;
-            display: none;
-            align-items: flex-end;
-            justify-content: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.72);
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            width: 100%;
-            max-width: 620px;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 23px;
-            border: 1px solid var(--border);
-            border-radius: 27px;
-            background: var(--panel);
-            animation: modalUp 0.22s ease;
-        }
-
-        @keyframes modalUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 22px;
-            font-weight: 900;
-        }
-
-        .close-modal {
-            display: grid;
-            width: 42px;
-            height: 42px;
-            place-items: center;
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            background: var(--input);
-            color: white;
-            font-size: 20px;
-        }
-
-        .danger-zone {
-            margin-top: 28px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        .helper-text {
-            margin-top: 10px;
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 600px) {
-            .app {
-                padding: 17px 12px 25px;
-            }
-
-            .card {
-                padding: 18px 14px;
-                border-radius: 23px;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            .full {
-                grid-column: auto;
-            }
-
-            .summary-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .summary-box {
-                min-height: 105px;
-                padding: 13px;
-                gap: 10px;
-            }
-
-            .summary-icon {
-                width: 44px;
-                height: 44px;
-                border-radius: 13px;
-                font-size: 21px;
-            }
-
-            .summary-value {
-                font-size: 21px;
-            }
-
-            .price-row {
-                gap: 6px;
-            }
-
-            .price-box strong {
-                font-size: 13px;
-            }
-
-            .section-heading {
-                font-size: 16px;
-            }
-
-            .step {
-                width: 41px;
-                height: 41px;
-            }
-
-            .nav-label {
-                font-size: 9px;
-            }
-        }
-
-        @media (min-width: 700px) {
-            .vehicle-list {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Management & Profit Tracker</title>
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --input-bg: #090d16;
+      --primary-purple: #8b5cf6;
+      --primary-orange: #f59e0b;
+      --green-accent: #10b981;
+      --red-accent: #ef4444;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      background: var(--card-bg);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-purple);
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    .header-title {
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .header-title span {
+      color: #60a5fa;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: -12px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stat-icon {
+      font-size: 24px;
+      background: #1f2937;
+      padding: 8px;
+      border-radius: 10px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .val-purple { color: #a78bfa; }
+    .val-green { color: var(--green-accent); }
+    .val-blue { color: #60a5fa; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-num {
+      background: var(--primary-orange);
+      color: #000;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .input-box {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-box input, .input-box select {
+      background: transparent;
+      border: none;
+      color: #fff;
+      width: 100%;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-orange {
+      background: var(--primary-orange);
+      color: #000;
+    }
+
+    .btn-purple {
+      background: var(--primary-purple);
+      color: #fff;
+    }
+
+    .btn-green {
+      background: var(--green-accent);
+      color: #fff;
+    }
+
+    .list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .list-item {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .item-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .deduction-amount {
+      color: var(--red-accent);
+      font-weight: 700;
+    }
+
+    .profit-amount {
+      color: var(--green-accent);
+      font-weight: 700;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
-
 <body>
-    <main class="app">
 
-        <!-- ACTIVE HUB -->
-        <section id="page-active" class="page active">
-            <header class="header">
-                <h1 class="title">
-                    Active <span class="blue">Hub</span>
-                </h1>
-
-                <p class="subtitle">
-                    View the vehicles you currently own and plan your next sale.
-                </p>
-            </header>
-
-            <div class="summary-grid">
-                <article class="summary-box">
-                    <div class="summary-icon">🚘</div>
-                    <div>
-                        <div class="summary-label">Active Cars</div>
-                        <div id="activeCount" class="summary-value blue-value">0</div>
-                    </div>
-                </article>
-
-                <article class="summary-box">
-                    <div class="summary-icon">📈</div>
-                    <div>
-                        <div class="summary-label">Expected Profit</div>
-                        <div id="expectedProfit" class="summary-value">$0</div>
-                    </div>
-                </article>
-            </div>
-
-            <div class="search">
-                <span>🔍</span>
-                <input
-                    id="activeSearch"
-                    type="search"
-                    placeholder="Search active vehicles..."
-                    autocomplete="off"
-                >
-            </div>
-
-            <div id="activeVehicleList" class="vehicle-list"></div>
-        </section>
-
-        <!-- QUICK TRADE -->
-        <section id="page-trade" class="page">
-            <header class="header">
-                <h1 class="title">
-                    Quick <span class="blue">Buy & Sell</span>
-                </h1>
-
-                <p class="subtitle">
-                    Record the direct buy price, expected sale price and vehicle details.
-                </p>
-            </header>
-
-            <form id="vehicleForm">
-                <article class="card">
-                    <div class="section-title">
-                        <div class="section-heading">
-                            <span class="step">1</span>
-                            Vehicle Details
-                        </div>
-
-                        <span class="section-icon">🚘</span>
-                    </div>
-
-                    <div class="grid">
-                        <div class="field">
-                            <span class="field-icon">🛡️</span>
-                            <label for="brand">Brand</label>
-                            <input
-                                id="brand"
-                                name="brand"
-                                type="text"
-                                placeholder="Toyota"
-                                required
-                            >
-                        </div>
-
-                        <div class="field">
-                            <span class="field-icon">🚗</span>
-                            <label for="model">Model</label>
-                            <input
-                                id="model"
-                                name="model"
-                                type="text"
-                                placeholder="Land Cruiser"
-                                required
-                            >
-                        </div>
-
-                        <div class="field">
-                            <span class="field-icon">⭐</span>
-                            <label for="trim">Trim / Edition</label>
-                            <input
-                                id="trim"
-                                name="trim"
-                                type="text"
-                                placeholder="VXR"
-                            >
-                        </div>
-
-                        <div class="field">
-                            <span class="field-icon">📅</span>
-                            <label for="year">Year</label>
-                            <input
-                                id="year"
-                                name="year"
-                                type="number"
-                                min="1950"
-                                max="2100"
-                                placeholder="2023"
-                                required
-                            >
-                        </div>
-
-                        <div class="field full">
-                            <span class="field-icon">🛞</span>
-                            <label for="mileage">KM / Mileage</label>
-                            <input
-                                id="mileage"
-                                name="mileage"
-                                type="number"
-                                min="0"
-                                placeholder="52000"
-                            >
-                        </div>
-                    </div>
-                </article>
-
-                <article class="card">
-                    <div class="section-title">
-                        <div class="section-heading">
-                            <span class="step">2</span>
-                            Vehicle Condition
-                        </div>
-
-                        <span class="section-icon">📋</span>
-                    </div>
-
-                    <div class="grid">
-                        <div class="field">
-                            <span class="field-icon">🛡️</span>
-                            <label for="accident">Accident History</label>
-                            <select id="accident" name="accident">
-                                <option value="Clean - No Crash">
-                                    Clean - No Crash
-                                </option>
-
-                                <option value="Minor Accident">
-                                    Minor Accident
-                                </option>
-
-                                <option value="Major Accident">
-                                    Major Accident
-                                </option>
-
-                                <option value="Unknown">
-                                    Unknown
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="field">
-                            <span class="field-icon">✅</span>
-                            <label for="warranty">Warranty Status</label>
-                            <select id="warranty" name="warranty">
-                                <option value="No Warranty">
-                                    No Warranty
-                                </option>
-
-                                <option value="Dealer Warranty">
-                                    Dealer Warranty
-                                </option>
-
-                                <option value="Company Warranty">
-                                    Company Warranty
-                                </option>
-
-                                <option value="Extended Warranty">
-                                    Extended Warranty
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="field">
-                            <span class="field-icon">🌀</span>
-                            <label for="turbo">Turbo Option</label>
-                            <select id="turbo" name="turbo">
-                                <option value="Non-Turbo">Non-Turbo</option>
-                                <option value="Turbo">Turbo</option>
-                                <option value="Twin Turbo">Twin Turbo</option>
-                            </select>
-                        </div>
-
-                        <div class="field">
-                            <span class="field-icon">⛽</span>
-                            <label for="fuel">Fuel Type</label>
-                            <select id="fuel" name="fuel">
-                                <option value="Gasoline">Gasoline</option>
-                                <option value="Diesel">Diesel</option>
-                                <option value="Hybrid">Hybrid</option>
-                                <option value="Electric">Electric</option>
-                            </select>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="card">
-                    <div class="section-title">
-                        <div class="section-heading">
-                            <span class="step">3</span>
-                            Pricing & Purchase
-                        </div>
-
-                        <span class="section-icon">📈</span>
-                    </div>
-
-                    <div class="grid">
-                        <div class="field price-buy">
-                            <span class="field-icon">💵</span>
-                            <label for="buyPrice">Bought Price ($)</label>
-                            <input
-                                id="buyPrice"
-                                name="buyPrice"
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                placeholder="30000"
-                                required
-                            >
-                        </div>
-
-                        <div class="field price-sell">
-                            <span class="field-icon">🏷️</span>
-                            <label for="sellPrice">Expected Sell Price ($)</label>
-                            <input
-                                id="sellPrice"
-                                name="sellPrice"
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                placeholder="35000"
-                                required
-                            >
-                        </div>
-
-                        <div class="field full">
-                            <span class="field-icon">📅</span>
-                            <label for="dateBought">Date Bought</label>
-                            <input
-                                id="dateBought"
-                                name="dateBought"
-                                type="date"
-                                required
-                            >
-                        </div>
-
-                        <div class="field full">
-                            <span class="field-icon">📝</span>
-                            <label for="notes">Notes / Extra Details</label>
-                            <textarea
-                                id="notes"
-                                name="notes"
-                                placeholder="Radar, clean title, direct trade..."
-                            ></textarea>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="card">
-                    <div class="section-title">
-                        <div class="section-heading">
-                            <span class="step">4</span>
-                            Vehicle Photos
-                        </div>
-
-                        <span class="section-icon">📸</span>
-                    </div>
-
-                    <label for="vehiclePhotos" class="photo-button">
-                        📷 Add up to four photos
-                    </label>
-
-                    <input
-                        id="vehiclePhotos"
-                        class="photo-input"
-                        type="file"
-                        accept="image/*"
-                        multiple
-                    >
-
-                    <p class="helper-text">
-                        Photos are stored inside your browser. Smaller images work best.
-                    </p>
-
-                    <div id="photoPreview" class="photo-grid"></div>
-                </article>
-
-                <button class="button orange" type="submit">
-                    💾 Save Bought Vehicle
-                </button>
-            </form>
-        </section>
-
-        <!-- SOLD CARS -->
-        <section id="page-sold" class="page">
-            <header class="header">
-                <h1 class="title">
-                    Cars <span class="blue">Sold</span>
-                </h1>
-
-                <p class="subtitle">
-                    Review completed sales and your total realized profit.
-                </p>
-            </header>
-
-            <div class="summary-grid">
-                <article class="summary-box">
-                    <div class="summary-icon">🤝</div>
-                    <div>
-                        <div class="summary-label">Sold Cars</div>
-                        <div id="soldCount" class="summary-value blue-value">0</div>
-                    </div>
-                </article>
-
-                <article class="summary-box">
-                    <div class="summary-icon">💰</div>
-                    <div>
-                        <div class="summary-label">Total Profit</div>
-                        <div id="totalProfit" class="summary-value">$0</div>
-                    </div>
-                </article>
-            </div>
-
-            <div class="search">
-                <span>🔍</span>
-                <input
-                    id="soldSearch"
-                    type="search"
-                    placeholder="Search sold vehicles..."
-                    autocomplete="off"
-                >
-            </div>
-
-            <div id="soldVehicleList" class="vehicle-list"></div>
-        </section>
-
-        <!-- PRICE REFERENCE -->
-        <section id="page-price" class="page">
-            <header class="header">
-                <h1 class="title">
-                    Price <span class="blue">Reference</span>
-                </h1>
-
-                <p class="subtitle">
-                    Search your own vehicle records and compare purchase and sale prices.
-                </p>
-            </header>
-
-            <div class="search">
-                <span>🔍</span>
-                <input
-                    id="priceSearch"
-                    type="search"
-                    placeholder="Search brand, model, year or trim..."
-                    autocomplete="off"
-                >
-            </div>
-
-            <div id="priceVehicleList" class="vehicle-list"></div>
-        </section>
-
-        <!-- CAPITAL -->
-        <section id="page-capital" class="page">
-            <header class="header">
-                <h1 class="title">
-                    My <span class="blue">Capital</span>
-                </h1>
-
-                <p class="subtitle">
-                    Manage your total funds and track automatic vehicle purchase deductions.
-                </p>
-            </header>
-
-            <div class="summary-grid">
-                <article class="summary-box">
-                    <div class="summary-icon">💼</div>
-                    <div>
-                        <div class="summary-label">Starting Capital</div>
-                        <div
-                            id="startingCapitalDisplay"
-                            class="summary-value purple-value"
-                        >
-                            $0
-                        </div>
-                    </div>
-                </article>
-
-                <article class="summary-box">
-                    <div class="summary-icon">💵</div>
-                    <div>
-                        <div class="summary-label">Available Cash</div>
-                        <div id="availableCashDisplay" class="summary-value">
-                            $0
-                        </div>
-                    </div>
-                </article>
-            </div>
-
-            <article class="card">
-                <div class="section-title">
-                    <div class="section-heading">
-                        <span class="step purple-step">1</span>
-                        Set / Add Total Funds
-                    </div>
-
-                    <span class="section-icon">🏦</span>
-                </div>
-
-                <div class="field full">
-                    <span class="field-icon">💵</span>
-                    <label for="capitalAmount">Capital Amount ($)</label>
-                    <input
-                        id="capitalAmount"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="e.g. 100000"
-                    >
-                </div>
-
-                <div class="button-row">
-                    <button
-                        id="setCapitalButton"
-                        class="button purple"
-                        type="button"
-                    >
-                        Set Capital
-                    </button>
-
-                    <button
-                        id="addCapitalButton"
-                        class="button blue"
-                        type="button"
-                    >
-                        Add Funds
-                    </button>
-                </div>
-
-                <p class="helper-text">
-                    “Set Capital” replaces the starting amount. “Add Funds” adds new cash.
-                </p>
-            </article>
-
-            <article class="card">
-                <div class="section-title">
-                    <div class="section-heading">
-                        <span class="step blue-step">2</span>
-                        Capital Inventory Deductions
-                    </div>
-
-                    <span class="section-icon">📊</span>
-                </div>
-
-                <div id="capitalInventory"></div>
-            </article>
-
-            <article class="card">
-                <div class="section-title">
-                    <div class="section-heading">
-                        Settings
-                    </div>
-
-                    <span class="section-icon">⚙️</span>
-                </div>
-
-                <button
-                    id="exportButton"
-                    class="button secondary"
-                    type="button"
-                >
-                    📤 Export Backup
-                </button>
-
-                <div style="height: 10px;"></div>
-
-                <label for="importFile" class="button secondary" style="
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                ">
-                    📥 Import Backup
-                </label>
-
-                <input
-                    id="importFile"
-                    class="photo-input"
-                    type="file"
-                    accept=".json,application/json"
-                >
-
-                <div class="danger-zone">
-                    <button
-                        id="resetButton"
-                        class="button red"
-                        type="button"
-                    >
-                        🗑️ Reset All Data
-                    </button>
-                </div>
-            </article>
-        </section>
-    </main>
-
-    <!-- BOTTOM NAVIGATION -->
-    <nav class="bottom-nav">
-        <div class="bottom-nav-inner">
-            <button class="nav-item active" data-page="active" type="button">
-                <span class="nav-icon">🚘</span>
-                <span class="nav-label">Active Hub</span>
-            </button>
-
-            <button class="nav-item" data-page="trade" type="button">
-                <span class="nav-icon">⚡</span>
-                <span class="nav-label">Quick Trade</span>
-            </button>
-
-            <button class="nav-item" data-page="sold" type="button">
-                <span class="nav-icon">🤝</span>
-                <span class="nav-label">Cars Sold</span>
-            </button>
-
-            <button class="nav-item" data-page="price" type="button">
-                <span class="nav-icon">🏷️</span>
-                <span class="nav-label">Price Ref</span>
-            </button>
-
-            <button class="nav-item" data-page="capital" type="button">
-                <span class="nav-icon">💵</span>
-                <span class="nav-label">Capital</span>
-            </button>
+<div class="container">
+  
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-entry')">Add Vehicle</button>
+    <button class="tab-btn" onclick="switchTab('tab-capital')">My Capital</button>
+    <button class="tab-btn" onclick="switchTab('tab-ledger')">Profit Ledger</button>
+  </div>
+
+  <!-- TAB 1: VEHICLE ENTRY -->
+  <div id="tab-entry" class="tab-content active">
+    
+    <div class="card">
+      <div class="section-title"><span class="badge-num">1</span> VEHICLE DETAILS 🚗</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Brand</label>
+          <div class="input-box"><input type="text" id="brand" placeholder="Toyota"></div>
         </div>
-    </nav>
-
-    <!-- SELL MODAL -->
-    <div id="sellModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Mark Vehicle as Sold</h2>
-
-                <button
-                    id="closeSellModal"
-                    class="close-modal"
-                    type="button"
-                >
-                    ✕
-                </button>
-            </div>
-
-            <input id="sellingVehicleId" type="hidden">
-
-            <div class="grid">
-                <div class="field full price-sell">
-                    <span class="field-icon">💵</span>
-                    <label for="actualSellPrice">Actual Sell Price ($)</label>
-                    <input
-                        id="actualSellPrice"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="35000"
-                    >
-                </div>
-
-                <div class="field full">
-                    <span class="field-icon">📅</span>
-                    <label for="dateSold">Date Sold</label>
-                    <input id="dateSold" type="date">
-                </div>
-            </div>
-
-            <div class="button-row">
-                <button
-                    id="confirmSoldButton"
-                    class="button green"
-                    type="button"
-                >
-                    Confirm Sale
-                </button>
-
-                <button
-                    id="cancelSoldButton"
-                    class="button secondary"
-                    type="button"
-                >
-                    Cancel
-                </button>
-            </div>
+        <div class="form-group">
+          <label>Model</label>
+          <div class="input-box"><input type="text" id="model" placeholder="Hilux"></div>
         </div>
+        <div class="form-group">
+          <label>Trim / Edition</label>
+          <div class="input-box"><input type="text" id="trim" placeholder="Double Cab 4x4"></div>
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <div class="input-box"><input type="number" id="year" placeholder="2026"></div>
+        </div>
+        <div class="form-group full">
+          <label>KM / Mileage</label>
+          <div class="input-box"><input type="number" id="mileage" placeholder="0"></div>
+        </div>
+      </div>
     </div>
 
-    <div id="toast" class="toast"></div>
-
-    <script>
-        "use strict";
-
-        const STORAGE_KEY = "quickBuySellDataV1";
-
-        const defaultState = {
-            startingCapital: 0,
-            addedFunds: 0,
-            vehicles: []
-        };
-
-        let state = loadState();
-        let selectedPhotos = [];
-
-        const vehicleForm = document.getElementById("vehicleForm");
-        const dateBoughtInput = document.getElementById("dateBought");
-        const vehiclePhotosInput = document.getElementById("vehiclePhotos");
-        const photoPreview = document.getElementById("photoPreview");
-
-        const activeSearch = document.getElementById("activeSearch");
-        const soldSearch = document.getElementById("soldSearch");
-        const priceSearch = document.getElementById("priceSearch");
-
-        const sellModal = document.getElementById("sellModal");
-        const sellingVehicleIdInput =
-            document.getElementById("sellingVehicleId");
-        const actualSellPriceInput =
-            document.getElementById("actualSellPrice");
-        const dateSoldInput = document.getElementById("dateSold");
-
-        function loadState() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-
-                if (!stored) {
-                    return structuredClone(defaultState);
-                }
-
-                const parsed = JSON.parse(stored);
-
-                return {
-                    startingCapital:
-                        Number(parsed.startingCapital) || 0,
-
-                    addedFunds:
-                        Number(parsed.addedFunds) || 0,
-
-                    vehicles:
-                        Array.isArray(parsed.vehicles)
-                            ? parsed.vehicles
-                            : []
-                };
-            } catch (error) {
-                console.error("Could not load saved data:", error);
-                return structuredClone(defaultState);
-            }
-        }
-
-        function saveState() {
-            try {
-                localStorage.setItem(
-                    STORAGE_KEY,
-                    JSON.stringify(state)
-                );
-            } catch (error) {
-                console.error("Could not save data:", error);
-
-                showToast(
-                    "Storage is full. Try using fewer or smaller photos."
-                );
-            }
-        }
-
-        function today() {
-            return new Date().toISOString().split("T")[0];
-        }
-
-        function createId() {
-            if (window.crypto && crypto.randomUUID) {
-                return crypto.randomUUID();
-            }
-
-            return (
-                Date.now().toString(36) +
-                Math.random().toString(36).slice(2)
-            );
-        }
-
-        function money(value) {
-            const amount = Number(value) || 0;
-
-            return new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-                maximumFractionDigits: 0
-            }).format(amount);
-        }
-
-        function number(value) {
-            return new Intl.NumberFormat("en-US").format(
-                Number(value) || 0
-            );
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) {
-                return "No date";
-            }
-
-            const date = new Date(dateString + "T00:00:00");
-
-            return new Intl.DateTimeFormat("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric"
-            }).format(date);
-        }
-
-        function escapeHtml(value) {
-            return String(value ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-
-            toast.textContent = message;
-            toast.classList.add("show");
-
-            clearTimeout(showToast.timer);
-
-            showToast.timer = setTimeout(() => {
-                toast.classList.remove("show");
-            }, 2600);
-        }
-
-        function calculateCapital() {
-            const activePurchaseTotal = state.vehicles
-                .filter(vehicle => vehicle.status === "active")
-                .reduce(
-                    (total, vehicle) =>
-                        total + Number(vehicle.buyPrice || 0),
-                    0
-                );
-
-            return (
-                Number(state.startingCapital || 0) +
-                Number(state.addedFunds || 0) -
-                activePurchaseTotal
-            );
-        }
-
-        function vehicleFullName(vehicle) {
-            return [
-                vehicle.brand,
-                vehicle.model,
-                vehicle.year,
-                vehicle.trim
-            ]
-                .filter(Boolean)
-                .join(" ");
-        }
-
-        function vehicleMatches(vehicle, query) {
-            const text = [
-                vehicle.brand,
-                vehicle.model,
-                vehicle.trim,
-                vehicle.year,
-                vehicle.mileage,
-                vehicle.accident,
-                vehicle.warranty,
-                vehicle.turbo,
-                vehicle.fuel,
-                vehicle.notes
-            ]
-                .join(" ")
-                .toLowerCase();
-
-            return text.includes(query.toLowerCase().trim());
-        }
-
-        function changePage(pageName) {
-            document.querySelectorAll(".page").forEach(page => {
-                page.classList.remove("active");
-            });
-
-            document.querySelectorAll(".nav-item").forEach(item => {
-                item.classList.remove("active");
-            });
-
-            const targetPage =
-                document.getElementById(`page-${pageName}`);
-
-            const targetNav =
-                document.querySelector(
-                    `.nav-item[data-page="${pageName}"]`
-                );
-
-            if (targetPage) {
-                targetPage.classList.add("active");
-            }
-
-            if (targetNav) {
-                targetNav.classList.add("active");
-            }
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-
-            renderAll();
-        }
-
-        function renderEmpty(icon, title, text) {
-            return `
-                <div class="empty">
-                    <div class="empty-icon">${icon}</div>
-                    <div class="empty-title">${escapeHtml(title)}</div>
-                    <div class="empty-text">${escapeHtml(text)}</div>
-                </div>
-            `;
-        }
-
-        function renderVehicleCard(vehicle, mode) {
-            const expectedProfit =
-                Number(vehicle.sellPrice) -
-                Number(vehicle.buyPrice);
-
-            const actualProfit =
-                Number(vehicle.actualSellPrice || 0) -
-                Number(vehicle.buyPrice);
-
-            const shownProfit =
-                vehicle.status === "sold"
-                    ? actualProfit
-                    : expectedProfit;
-
-            const profitClass =
-                shownProfit >= 0
-                    ? "profit-positive"
-                    : "profit-negative";
-
-            const cover = vehicle.photos?.[0]
-                ? `<img src="${vehicle.photos[0]}" alt="Vehicle photo">`
-                : `<div class="vehicle-placeholder">🚘</div>`;
-
-            const status =
-                vehicle.status === "sold"
-                    ? "Sold"
-                    : "Active";
-
-            let buttons = "";
-
-            if (mode === "active") {
-                buttons = `
-                    <div class="button-row">
-                        <button
-                            class="button green small"
-                            type="button"
-                            onclick="openSellModal('${vehicle.id}')"
-                        >
-                            🤝 Mark Sold
-                        </button>
-
-                        <button
-                            class="button red small"
-                            type="button"
-                            onclick="deleteVehicle('${vehicle.id}')"
-                        >
-                            🗑️ Delete
-                        </button>
-                    </div>
-                `;
-            }
-
-            if (mode === "sold") {
-                buttons = `
-                    <div class="button-row">
-                        <button
-                            class="button blue small"
-                            type="button"
-                            onclick="returnVehicleToActive('${vehicle.id}')"
-                        >
-                            ↩ Return Active
-                        </button>
-
-                        <button
-                            class="button red small"
-                            type="button"
-                            onclick="deleteVehicle('${vehicle.id}')"
-                        >
-                            🗑️ Delete
-                        </button>
-                    </div>
-                `;
-            }
-
-            return `
-                <article class="vehicle-card">
-                    <div class="vehicle-cover">
-                        ${cover}
-                        <span class="status-badge">${status}</span>
-                    </div>
-
-                    <div class="vehicle-content">
-                        <h3 class="vehicle-name">
-                            ${escapeHtml(vehicleFullName(vehicle))}
-                        </h3>
-
-                        <div class="vehicle-meta">
-                            ${number(vehicle.mileage)} km
-                            · ${escapeHtml(vehicle.turbo)}
-                            · ${escapeHtml(vehicle.fuel)}
-                            <br>
-                            ${escapeHtml(vehicle.accident)}
-                            · ${escapeHtml(vehicle.warranty)}
-                            <br>
-                            Bought: ${formatDate(vehicle.dateBought)}
-                            ${
-                                vehicle.status === "sold"
-                                    ? `<br>Sold: ${formatDate(vehicle.dateSold)}`
-                                    : ""
-                            }
-                            ${
-                                vehicle.notes
-                                    ? `<br>${escapeHtml(vehicle.notes)}`
-                                    : ""
-                            }
-                        </div>
-
-                        <div class="price-row">
-                            <div class="price-box">
-                                <small>Bought</small>
-                                <strong>${money(vehicle.buyPrice)}</strong>
-                            </div>
-
-                            <div class="price-box">
-                                <small>
-                                    ${
-                                        vehicle.status === "sold"
-                                            ? "Sold"
-                                            : "Expected"
-                                    }
-                                </small>
-
-                                <strong>
-                                    ${money(
-                                        vehicle.status === "sold"
-                                            ? vehicle.actualSellPrice
-                                            : vehicle.sellPrice
-                                    )}
-                                </strong>
-                            </div>
-
-                            <div class="price-box">
-                                <small>Profit</small>
-                                <strong class="${profitClass}">
-                                    ${money(shownProfit)}
-                                </strong>
-                            </div>
-                        </div>
-
-                        ${buttons}
-                    </div>
-                </article>
-            `;
-        }
-
-        function renderActiveVehicles() {
-            const query = activeSearch.value || "";
-
-            const activeVehicles = state.vehicles
-                .filter(vehicle => vehicle.status === "active")
-                .filter(vehicle => vehicleMatches(vehicle, query))
-                .sort(
-                    (a, b) =>
-                        new Date(b.createdAt) -
-                        new Date(a.createdAt)
-                );
-
-            const activeTotal = state.vehicles.filter(
-                vehicle => vehicle.status === "active"
-            );
-
-            const expectedProfit = activeTotal.reduce(
-                (total, vehicle) =>
-                    total +
-                    (
-                        Number(vehicle.sellPrice) -
-                        Number(vehicle.buyPrice)
-                    ),
-                0
-            );
-
-            document.getElementById("activeCount").textContent =
-                activeTotal.length;
-
-            document.getElementById("expectedProfit").textContent =
-                money(expectedProfit);
-
-            const list =
-                document.getElementById("activeVehicleList");
-
-            if (!activeVehicles.length) {
-                list.innerHTML = renderEmpty(
-                    "🚘",
-                    query ? "No matching vehicles" : "No active vehicles",
-                    query
-                        ? "Try another search."
-                        : "Add your first vehicle from Quick Trade."
-                );
-
-                return;
-            }
-
-            list.innerHTML = activeVehicles
-                .map(vehicle =>
-                    renderVehicleCard(vehicle, "active")
-                )
-                .join("");
-        }
-
-        function renderSoldVehicles() {
-            const query = soldSearch.value || "";
-
-            const soldVehicles = state.vehicles
-                .filter(vehicle => vehicle.status === "sold")
-                .filter(vehicle => vehicleMatches(vehicle, query))
-                .sort(
-                    (a, b) =>
-                        new Date(b.dateSold || b.createdAt) -
-                        new Date(a.dateSold || a.createdAt)
-                );
-
-            const allSold = state.vehicles.filter(
-                vehicle => vehicle.status === "sold"
-            );
-
-            const totalProfit = allSold.reduce(
-                (total, vehicle) =>
-                    total +
-                    (
-                        Number(vehicle.actualSellPrice || 0) -
-                        Number(vehicle.buyPrice || 0)
-                    ),
-                0
-            );
-
-            document.getElementById("soldCount").textContent =
-                allSold.length;
-
-            document.getElementById("totalProfit").textContent =
-                money(totalProfit);
-
-            const list =
-                document.getElementById("soldVehicleList");
-
-            if (!soldVehicles.length) {
-                list.innerHTML = renderEmpty(
-                    "🤝",
-                    query ? "No matching sales" : "No sold vehicles",
-                    query
-                        ? "Try another search."
-                        : "Vehicles marked as sold will appear here."
-                );
-
-                return;
-            }
-
-            list.innerHTML = soldVehicles
-                .map(vehicle =>
-                    renderVehicleCard(vehicle, "sold")
-                )
-                .join("");
-        }
-
-        function renderPriceReference() {
-            const query = priceSearch.value || "";
-
-            const vehicles = [...state.vehicles]
-                .filter(vehicle => vehicleMatches(vehicle, query))
-                .sort(
-                    (a, b) =>
-                        new Date(b.createdAt) -
-                        new Date(a.createdAt)
-                );
-
-            const list =
-                document.getElementById("priceVehicleList");
-
-            if (!vehicles.length) {
-                list.innerHTML = renderEmpty(
-                    "🏷️",
-                    query ? "No price records found" : "No vehicle records",
-                    query
-                        ? "Try another brand, model, year or trim."
-                        : "Your saved purchase and sale prices will appear here."
-                );
-
-                return;
-            }
-
-            list.innerHTML = vehicles
-                .map(vehicle =>
-                    renderVehicleCard(vehicle, "reference")
-                )
-                .join("");
-        }
-
-        function renderCapital() {
-            const availableCash = calculateCapital();
-
-            document.getElementById(
-                "startingCapitalDisplay"
-            ).textContent = money(
-                Number(state.startingCapital) +
-                Number(state.addedFunds)
-            );
-
-            const availableElement =
-                document.getElementById("availableCashDisplay");
-
-            availableElement.textContent = money(availableCash);
-
-            availableElement.className =
-                availableCash >= 0
-                    ? "summary-value"
-                    : "summary-value profit-negative";
-
-            const activeVehicles = state.vehicles
-                .filter(vehicle => vehicle.status === "active")
-                .sort(
-                    (a, b) =>
-                        new Date(b.dateBought) -
-                        new Date(a.dateBought)
-                );
-
-            const inventory =
-                document.getElementById("capitalInventory");
-
-            if (!activeVehicles.length) {
-                inventory.innerHTML = renderEmpty(
-                    "📊",
-                    "No active deductions",
-                    "Vehicle purchases will be deducted automatically."
-                );
-
-                return;
-            }
-
-            inventory.innerHTML = activeVehicles
-                .map(vehicle => `
-                    <div class="inventory-item">
-                        <div>
-                            <div class="inventory-name">
-                                ${escapeHtml(
-                                    vehicleFullName(vehicle)
-                                )}
-                            </div>
-
-                            <div class="inventory-date">
-                                Bought: ${formatDate(vehicle.dateBought)}
-                                (Quick Trade)
-                            </div>
-                        </div>
-
-                        <div class="inventory-amount">
-                            -${money(vehicle.buyPrice)}
-                        </div>
-                    </div>
-                `)
-                .join("");
-        }
-
-        function renderPhotoPreview() {
-            photoPreview.innerHTML = selectedPhotos
-                .map((photo, index) => `
-                    <div class="photo-item">
-                        <img
-                            src="${photo}"
-                            alt="Vehicle preview ${index + 1}"
-                        >
-
-                        <button
-                            class="photo-remove"
-                            type="button"
-                            onclick="removePhoto(${index})"
-                            aria-label="Remove image"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                `)
-                .join("");
-        }
-
-        function renderAll() {
-            renderActiveVehicles();
-            renderSoldVehicles();
-            renderPriceReference();
-            renderCapital();
-        }
-
-        async function resizeImage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-
-                reader.onload = event => {
-                    const image = new Image();
-
-                    image.onload = () => {
-                        const maxSize = 1100;
-                        let width = image.width;
-                        let height = image.height;
-
-                        if (width > height && width > maxSize) {
-                            height = Math.round(
-                                height * (maxSize / width)
-                            );
-
-                            width = maxSize;
-                        } else if (
-                            height >= width &&
-                            height > maxSize
-                        ) {
-                            width = Math.round(
-                                width * (maxSize / height)
-                            );
-
-                            height = maxSize;
-                        }
-
-                        const canvas =
-                            document.createElement("canvas");
-
-                        canvas.width = width;
-                        canvas.height = height;
-
-                        const context =
-                            canvas.getContext("2d");
-
-                        context.drawImage(
-                            image,
-                            0,
-                            0,
-                            width,
-                            height
-                        );
-
-                        resolve(
-                            canvas.toDataURL("image/jpeg", 0.72)
-                        );
-                    };
-
-                    image.onerror = () =>
-                        reject(new Error("Invalid image"));
-
-                    image.src = event.target.result;
-                };
-
-                reader.onerror = () =>
-                    reject(new Error("Could not read image"));
-
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function removePhoto(index) {
-            selectedPhotos.splice(index, 1);
-            renderPhotoPreview();
-        }
-
-        async function handlePhotoUpload(event) {
-            const files = Array.from(event.target.files || []);
-
-            if (!files.length) {
-                return;
-            }
-
-            const remaining = 4 - selectedPhotos.length;
-
-            if (remaining <= 0) {
-                showToast("You can add a maximum of four photos.");
-                event.target.value = "";
-                return;
-            }
-
-            const accepted = files.slice(0, remaining);
-
-            try {
-                for (const file of accepted) {
-                    if (!file.type.startsWith("image/")) {
-                        continue;
-                    }
-
-                    const resized = await resizeImage(file);
-                    selectedPhotos.push(resized);
-                }
-
-                renderPhotoPreview();
-
-                if (files.length > remaining) {
-                    showToast("Only the first four photos were added.");
-                }
-            } catch (error) {
-                console.error(error);
-                showToast("One of the photos could not be processed.");
-            }
-
-            event.target.value = "";
-        }
-
-        function handleVehicleSubmit(event) {
-            event.preventDefault();
-
-            const formData = new FormData(vehicleForm);
-
-            const vehicle = {
-                id: createId(),
-                brand: formData.get("brand").trim(),
-                model: formData.get("model").trim(),
-                trim: formData.get("trim").trim(),
-                year: Number(formData.get("year")),
-                mileage: Number(formData.get("mileage")) || 0,
-                accident: formData.get("accident"),
-                warranty: formData.get("warranty"),
-                turbo: formData.get("turbo"),
-                fuel: formData.get("fuel"),
-                buyPrice: Number(formData.get("buyPrice")),
-                sellPrice: Number(formData.get("sellPrice")),
-                dateBought: formData.get("dateBought"),
-                notes: formData.get("notes").trim(),
-                photos: [...selectedPhotos],
-                status: "active",
-                actualSellPrice: null,
-                dateSold: null,
-                createdAt: new Date().toISOString()
-            };
-
-            if (!vehicle.brand || !vehicle.model) {
-                showToast("Please enter the vehicle brand and model.");
-                return;
-            }
-
-            if (
-                vehicle.buyPrice < 0 ||
-                vehicle.sellPrice < 0
-            ) {
-                showToast("Vehicle prices cannot be negative.");
-                return;
-            }
-
-            state.vehicles.push(vehicle);
-            saveState();
-
-            vehicleForm.reset();
-            selectedPhotos = [];
-            renderPhotoPreview();
-            dateBoughtInput.value = today();
-
-            renderAll();
-            changePage("active");
-
-            showToast("Vehicle saved and capital deducted.");
-        }
-
-        function deleteVehicle(id) {
-            const vehicle = state.vehicles.find(
-                item => item.id === id
-            );
-
-            if (!vehicle) {
-                return;
-            }
-
-            const confirmed = confirm(
-                `Delete ${vehicleFullName(vehicle)}?`
-            );
-
-            if (!confirmed) {
-                return;
-            }
-
-            state.vehicles = state.vehicles.filter(
-                item => item.id !== id
-            );
-
-            saveState();
-            renderAll();
-            showToast("Vehicle deleted.");
-        }
-
-        function openSellModal(id) {
-            const vehicle = state.vehicles.find(
-                item => item.id === id
-            );
-
-            if (!vehicle) {
-                return;
-            }
-
-            sellingVehicleIdInput.value = id;
-            actualSellPriceInput.value =
-                Number(vehicle.sellPrice) || "";
-            dateSoldInput.value = today();
-
-            sellModal.classList.add("show");
-        }
-
-        function closeSellModal() {
-            sellModal.classList.remove("show");
-            sellingVehicleIdInput.value = "";
-            actualSellPriceInput.value = "";
-        }
-
-        function confirmVehicleSold() {
-            const id = sellingVehicleIdInput.value;
-
-            const vehicle = state.vehicles.find(
-                item => item.id === id
-            );
-
-            if (!vehicle) {
-                closeSellModal();
-                return;
-            }
-
-            const actualPrice =
-                Number(actualSellPriceInput.value);
-
-            if (
-                !actualSellPriceInput.value ||
-                actualPrice < 0
-            ) {
-                showToast("Enter the actual sale price.");
-                return;
-            }
-
-            vehicle.status = "sold";
-            vehicle.actualSellPrice = actualPrice;
-            vehicle.dateSold = dateSoldInput.value || today();
-
-            saveState();
-            closeSellModal();
-            renderAll();
-
-            showToast(
-                `Vehicle sold. Profit: ${money(
-                    actualPrice - Number(vehicle.buyPrice)
-                )}`
-            );
-        }
-
-        function returnVehicleToActive(id) {
-            const vehicle = state.vehicles.find(
-                item => item.id === id
-            );
-
-            if (!vehicle) {
-                return;
-            }
-
-            const confirmed = confirm(
-                `Return ${vehicleFullName(vehicle)} to active inventory?`
-            );
-
-            if (!confirmed) {
-                return;
-            }
-
-            vehicle.status = "active";
-            vehicle.actualSellPrice = null;
-            vehicle.dateSold = null;
-
-            saveState();
-            renderAll();
-
-            showToast("Vehicle returned to active inventory.");
-        }
-
-        function setCapital() {
-            const input =
-                document.getElementById("capitalAmount");
-
-            const amount = Number(input.value);
-
-            if (!input.value || amount < 0) {
-                showToast("Enter a valid capital amount.");
-                return;
-            }
-
-            const confirmed = confirm(
-                "Replace your current total funds with this amount?"
-            );
-
-            if (!confirmed) {
-                return;
-            }
-
-            state.startingCapital = amount;
-            state.addedFunds = 0;
-
-            input.value = "";
-            saveState();
-            renderAll();
-
-            showToast("Capital updated.");
-        }
-
-        function addCapital() {
-            const input =
-                document.getElementById("capitalAmount");
-
-            const amount = Number(input.value);
-
-            if (!input.value || amount <= 0) {
-                showToast("Enter an amount greater than zero.");
-                return;
-            }
-
-            state.addedFunds += amount;
-
-            input.value = "";
-            saveState();
-            renderAll();
-
-            showToast(`${money(amount)} added to capital.`);
-        }
-
-        function exportBackup() {
-            const backup = {
-                app: "Quick Buy & Sell",
-                exportedAt: new Date().toISOString(),
-                data: state
-            };
-
-            const blob = new Blob(
-                [JSON.stringify(backup, null, 2)],
-                { type: "application/json" }
-            );
-
-            const url = URL.createObjectURL(blob);
-            const anchor = document.createElement("a");
-
-            anchor.href = url;
-            anchor.download =
-                `quick-buy-sell-backup-${today()}.json`;
-
-            document.body.appendChild(anchor);
-            anchor.click();
-            anchor.remove();
-
-            URL.revokeObjectURL(url);
-
-            showToast("Backup exported.");
-        }
-
-        function importBackup(event) {
-            const file = event.target.files?.[0];
-
-            if (!file) {
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = loadEvent => {
-                try {
-                    const parsed = JSON.parse(
-                        loadEvent.target.result
-                    );
-
-                    const importedState =
-                        parsed.data || parsed;
-
-                    if (
-                        !importedState ||
-                        !Array.isArray(importedState.vehicles)
-                    ) {
-                        throw new Error("Invalid backup");
-                    }
-
-                    const confirmed = confirm(
-                        "Import this backup and replace your current data?"
-                    );
-
-                    if (!confirmed) {
-                        event.target.value = "";
-                        return;
-                    }
-
-                    state = {
-                        startingCapital:
-                            Number(
-                                importedState.startingCapital
-                            ) || 0,
-
-                        addedFunds:
-                            Number(
-                                importedState.addedFunds
-                            ) || 0,
-
-                        vehicles:
-                            importedState.vehicles
-                    };
-
-                    saveState();
-                    renderAll();
-
-                    showToast("Backup imported successfully.");
-                } catch (error) {
-                    console.error(error);
-                    showToast("This is not a valid backup file.");
-                }
-
-                event.target.value = "";
-            };
-
-            reader.readAsText(file);
-        }
-
-        function resetAllData() {
-            const firstConfirmation = confirm(
-                "Delete all vehicles, sales and capital data?"
-            );
-
-            if (!firstConfirmation) {
-                return;
-            }
-
-            const secondConfirmation = confirm(
-                "This cannot be undone. Are you completely sure?"
-            );
-
-            if (!secondConfirmation) {
-                return;
-            }
-
-            state = structuredClone(defaultState);
-            selectedPhotos = [];
-
-            localStorage.removeItem(STORAGE_KEY);
-
-            vehicleForm.reset();
-            dateBoughtInput.value = today();
-
-            renderPhotoPreview();
-            renderAll();
-            changePage("active");
-
-            showToast("All data has been reset.");
-        }
-
-        document
-            .querySelectorAll(".nav-item")
-            .forEach(button => {
-                button.addEventListener("click", () => {
-                    changePage(button.dataset.page);
-                });
-            });
-
-        vehicleForm.addEventListener(
-            "submit",
-            handleVehicleSubmit
-        );
-
-        vehiclePhotosInput.addEventListener(
-            "change",
-            handlePhotoUpload
-        );
-
-        activeSearch.addEventListener(
-            "input",
-            renderActiveVehicles
-        );
-
-        soldSearch.addEventListener(
-            "input",
-            renderSoldVehicles
-        );
-
-        priceSearch.addEventListener(
-            "input",
-            renderPriceReference
-        );
-
-        document
-            .getElementById("setCapitalButton")
-            .addEventListener("click", setCapital);
-
-        document
-            .getElementById("addCapitalButton")
-            .addEventListener("click", addCapital);
-
-        document
-            .getElementById("closeSellModal")
-            .addEventListener("click", closeSellModal);
-
-        document
-            .getElementById("cancelSoldButton")
-            .addEventListener("click", closeSellModal);
-
-        document
-            .getElementById("confirmSoldButton")
-            .addEventListener("click", confirmVehicleSold);
-
-        document
-            .getElementById("exportButton")
-            .addEventListener("click", exportBackup);
-
-        document
-            .getElementById("importFile")
-            .addEventListener("change", importBackup);
-
-        document
-            .getElementById("resetButton")
-            .addEventListener("click", resetAllData);
-
-        sellModal.addEventListener("click", event => {
-            if (event.target === sellModal) {
-                closeSellModal();
-            }
-        });
-
-        dateBoughtInput.value = today();
-        dateSoldInput.value = today();
-
-        renderPhotoPreview();
-        renderAll();
-
-        window.removePhoto = removePhoto;
-        window.openSellModal = openSellModal;
-        window.deleteVehicle = deleteVehicle;
-        window.returnVehicleToActive =
-            returnVehicleToActive;
-    </script>
+    <div class="card">
+      <div class="section-title"><span class="badge-num">2</span> VEHICLE CONDITION 📋</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Accident History</label>
+          <div class="input-box">
+            <select id="accident">
+              <option>Clean (No Crash)</option>
+              <option>Minor Damage</option>
+              <option>Repaired</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Warranty Status</label>
+          <div class="input-box">
+            <select id="warranty">
+              <option>No Warranty</option>
+              <option>Active Warranty</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Turbo Option</label>
+          <div class="input-box">
+            <select id="turbo">
+              <option>Non-Turbo</option>
+              <option>Turbocharged</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Fuel Type</label>
+          <div class="input-box">
+            <select id="fuel">
+              <option>Gasoline</option>
+              <option>Diesel</option>
+              <option>Hybrid</option>
+              <option>Electric</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><span class="badge-num">3</span> PRICING & PURCHASE DATE 📈</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Bought Price ($)</label>
+          <div class="input-box"><input type="number" id="boughtPrice" placeholder="30000"></div>
+        </div>
+        <div class="form-group">
+          <label>Target Sell Price ($)</label>
+          <div class="input-box"><input type="number" id="targetSellPrice" placeholder="35000"></div>
+        </div>
+        <div class="form-group full">
+          <label>Date Bought</label>
+          <div class="input-box"><input type="date" id="dateBought"></div>
+        </div>
+        <div class="form-group full">
+          <label>Notes / Extra Details</label>
+          <div class="input-box"><input type="text" id="notes" placeholder="Clean title, direct trade"></div>
+        </div>
+      </div>
+
+      <button class="btn btn-orange" onclick="saveVehicle()">💾 Save Bought Vehicle</button>
+    </div>
+
+  </div>
+
+  <!-- TAB 2: MY CAPITAL -->
+  <div id="tab-capital" class="tab-content">
+    <h1 class="header-title">My <span>Capital</span></h1>
+    <p class="subtitle">Manage total cash reserves and track vehicle purchase deductions.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💼</div>
+        <div>
+          <div class="stat-label">Starting Capital</div>
+          <div class="stat-value val-purple" id="displayStartingCapital">$0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💵</div>
+        <div>
+          <div class="stat-label">Available Cash</div>
+          <div class="stat-value val-green" id="displayAvailableCash">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><span class="badge-num">1</span> SET / ADD TOTAL FUNDS 🏦</div>
+      <div class="form-group">
+        <label>Enter Capital Amount ($)</label>
+        <div class="input-box"><input type="number" id="capitalInput" placeholder="e.g. 140000"></div>
+      </div>
+      <button class="btn btn-purple" onclick="updateCapital()">💾 Update Capital Funds</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><span class="badge-num">2</span> CAPITAL INVENTORY DEDUCTIONS 📊</div>
+      <div class="list-container" id="deductionsList">
+        <!-- Capital Deductions render here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: CARS SOLD & PROFIT LEDGER -->
+  <div id="tab-ledger" class="tab-content">
+    <h1 class="header-title">Cars Sold & <span>Profit Ledger</span></h1>
+    <p class="subtitle">Comprehensive record of completed car sales & net revenue.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div>
+          <div class="stat-label">Total Lifetime Profit</div>
+          <div class="stat-value val-green" id="displayLifetimeProfit">$0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div>
+          <div class="stat-label">This Month Profit</div>
+          <div class="stat-value val-blue" id="displayMonthProfit">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-box">
+      🔍 <input type="text" id="searchInput" placeholder="Search Sold Vehicles..." oninput="renderLedger()">
+    </div>
+
+    <div class="card">
+      <div class="section-title">ACTIVE INVENTORY (CLICK TO SELL)</div>
+      <div class="list-container" id="inventoryList">
+        <!-- Active inventory items render here -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">COMPLETED SALES</div>
+      <div class="list-container" id="soldList">
+        <!-- Sold cars render here -->
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // App State Initialization
+  let startingCapital = parseFloat(localStorage.getItem('startingCapital')) || 0;
+  let vehicles = JSON.parse(localStorage.getItem('vehicles')) || [];
+
+  // Initialize UI
+  document.getElementById('dateBought').valueAsDate = new Date();
+  updateUI();
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function updateCapital() {
+    const val = parseFloat(document.getElementById('capitalInput').value);
+    if (!isNaN(val)) {
+      startingCapital = val;
+      localStorage.setItem('startingCapital', startingCapital);
+      document.getElementById('capitalInput').value = '';
+      updateUI();
+    }
+  }
+
+  function saveVehicle() {
+    const brand = document.getElementById('brand').value || 'Unknown';
+    const model = document.getElementById('model').value || 'Vehicle';
+    const trim = document.getElementById('trim').value || '';
+    const year = document.getElementById('year').value || '2026';
+    const boughtPrice = parseFloat(document.getElementById('boughtPrice').value) || 0;
+    const targetSellPrice = parseFloat(document.getElementById('targetSellPrice').value) || 0;
+    const dateBought = document.getElementById('dateBought').value;
+    const notes = document.getElementById('notes').value || 'Quick Trade';
+
+    const newVehicle = {
+      id: Date.now(),
+      title: `${brand.toUpperCase()} ${model} ${year} ${trim}`.trim(),
+      boughtPrice,
+      targetSellPrice,
+      dateBought,
+      notes,
+      isSold: false,
+      actualSellPrice: 0,
+      dateSold: null,
+      profit: 0
+    };
+
+    vehicles.push(newVehicle);
+    saveAndRefresh();
+
+    // Reset Form Fields
+    document.getElementById('brand').value = '';
+    document.getElementById('model').value = '';
+    document.getElementById('trim').value = '';
+    document.getElementById('boughtPrice').value = '';
+    document.getElementById('targetSellPrice').value = '';
+    document.getElementById('notes').value = '';
+  }
+
+  function sellVehicle(id) {
+    const vehicle = vehicles.find(v => v.id === id);
+    if (!vehicle) return;
+
+    const sellPriceInput = prompt(`Enter actual final selling price for ${vehicle.title}:`, vehicle.targetSellPrice);
+    if (sellPriceInput === null) return;
+
+    const actualSellPrice = parseFloat(sellPriceInput);
+    if (isNaN(actualSellPrice)) return;
+
+    vehicle.isSold = true;
+    vehicle.actualSellPrice = actualSellPrice;
+    vehicle.dateSold = new Date().toISOString().split('T')[0];
+    
+    // Separate Profit Calculation Logic
+    vehicle.profit = vehicle.actualSellPrice - vehicle.boughtPrice;
+
+    saveAndRefresh();
+  }
+
+  function saveAndRefresh() {
+    localStorage.setItem('vehicles', JSON.stringify(vehicles));
+    updateUI();
+  }
+
+  function updateUI() {
+    // 1. Calculate Capital Metrics
+    const totalInventoryCost = vehicles
+      .filter(v => !v.isSold)
+      .reduce((sum, v) => sum + v.boughtPrice, 0);
+
+    const totalRealizedProfits = vehicles
+      .filter(v => v.isSold)
+      .reduce((sum, v) => sum + v.profit, 0);
+
+    // Available Cash = Starting Capital - Active Purchases + Total Realized Cash from Sales
+    const totalSalesRevenue = vehicles
+      .filter(v => v.isSold)
+      .reduce((sum, v) => sum + v.actualSellPrice, 0);
+    
+    const totalPurchasesAllTime = vehicles
+      .reduce((sum, v) => sum + v.boughtPrice, 0);
+
+    const availableCash = startingCapital - totalPurchasesAllTime + totalSalesRevenue;
+
+    // Render Stats
+    document.getElementById('displayStartingCapital').textContent = `$${startingCapital.toLocaleString()}`;
+    document.getElementById('displayAvailableCash').textContent = `$${availableCash.toLocaleString()}`;
+
+    // 2. Render Capital Deductions List
+    const deductionsList = document.getElementById('deductionsList');
+    deductionsList.innerHTML = '';
+    vehicles.forEach(v => {
+      deductionsList.innerHTML += `
+        <div class="list-item">
+          <div>
+            <div class="item-title">${v.title}</div>
+            <div class="item-sub">Bought: ${v.dateBought} (${v.notes})</div>
+          </div>
+          <div class="deduction-amount">-$${v.boughtPrice.toLocaleString()}</div>
+        </div>
+      `;
+    });
+
+    // 3. Profit Ledger Calculations
+    const lifetimeProfit = totalRealizedProfits;
+
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const thisMonthProfit = vehicles
+      .filter(v => v.isSold && v.dateSold && v.dateSold.startsWith(currentMonth))
+      .reduce((sum, v) => sum + v.profit, 0);
+
+    document.getElementById('displayLifetimeProfit').textContent = `$${lifetimeProfit.toLocaleString()}`;
+    document.getElementById('displayMonthProfit').textContent = `$${thisMonthProfit.toLocaleString()}`;
+
+    renderLedger();
+  }
+
+  function renderLedger() {
+    const query = (document.getElementById('searchInput').value || '').toLowerCase();
+
+    // Active Inventory
+    const inventoryList = document.getElementById('inventoryList');
+    inventoryList.innerHTML = '';
+    const activeItems = vehicles.filter(v => !v.isSold && v.title.toLowerCase().includes(query));
+    
+    if (activeItems.length === 0) {
+      inventoryList.innerHTML = `<div class="item-sub">No active inventory found.</div>`;
+    } else {
+      activeItems.forEach(v => {
+        inventoryList.innerHTML += `
+          <div class="list-item">
+            <div>
+              <div class="item-title">${v.title}</div>
+              <div class="item-sub">Bought: $${v.boughtPrice.toLocaleString()} | Target: $${v.targetSellPrice.toLocaleString()}</div>
+            </div>
+            <button class="action-btn btn-green" onclick="sellVehicle(${v.id})">Mark Sold</button>
+          </div>
+        `;
+      });
+    }
+
+    // Sold Vehicles
+    const soldList = document.getElementById('soldList');
+    soldList.innerHTML = '';
+    const soldItems = vehicles.filter(v => v.isSold && v.title.toLowerCase().includes(query));
+
+    if (soldItems.length === 0) {
+      soldList.innerHTML = `<div class="item-sub">No completed sales recorded.</div>`;
+    } else {
+      soldItems.forEach(v => {
+        soldList.innerHTML += `
+          <div class="list-item">
+            <div>
+              <div class="item-title">${v.title}</div>
+              <div class="item-sub">Bought: $${v.boughtPrice.toLocaleString()} | Sold: $${v.actualSellPrice.toLocaleString()} (${v.dateSold})</div>
+            </div>
+            <div class="profit-amount">+$${v.profit.toLocaleString()} Profit</div>
+          </div>
+        `;
+      });
+    }
+  }
+</script>
 </body>
 </html>
