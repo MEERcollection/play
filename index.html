@@ -247,6 +247,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
 
     .item-title {
@@ -259,22 +260,41 @@
       color: var(--text-muted);
     }
 
+    .item-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .deduction-amount {
       color: var(--red-accent);
       font-weight: 700;
+      font-size: 14px;
     }
 
     .profit-amount {
       color: var(--green-accent);
       font-weight: 700;
+      font-size: 14px;
     }
 
     .action-btn {
-      padding: 6px 12px;
+      padding: 6px 10px;
       font-size: 12px;
       border-radius: 6px;
       border: none;
       cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-edit {
+      background: #374151;
+      color: #fff;
+    }
+
+    .btn-delete {
+      background: var(--red-accent);
+      color: #fff;
     }
   </style>
 </head>
@@ -283,9 +303,9 @@
 <div class="container">
   
   <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('tab-entry')">Add Vehicle</button>
-    <button class="tab-btn" onclick="switchTab('tab-capital')">My Capital</button>
-    <button class="tab-btn" onclick="switchTab('tab-ledger')">Profit Ledger</button>
+    <button class="tab-btn active" onclick="switchTab(event, 'tab-entry')">Add Vehicle</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-capital')">My Capital</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-ledger')">Profit Ledger</button>
   </div>
 
   <!-- TAB 1: VEHICLE ENTRY -->
@@ -370,6 +390,10 @@
           <div class="input-box"><input type="number" id="boughtPrice" placeholder="30000"></div>
         </div>
         <div class="form-group">
+          <label>Plate Number Cost ($)</label>
+          <div class="input-box"><input type="number" id="plateCost" placeholder="e.g. 500"></div>
+        </div>
+        <div class="form-group full">
           <label>Target Sell Price ($)</label>
           <div class="input-box"><input type="number" id="targetSellPrice" placeholder="35000"></div>
         </div>
@@ -471,20 +495,20 @@
 </div>
 
 <script>
-  // App State Initialization
   let startingCapital = parseFloat(localStorage.getItem('startingCapital')) || 0;
   let vehicles = JSON.parse(localStorage.getItem('vehicles')) || [];
 
-  // Initialize UI
   document.getElementById('dateBought').valueAsDate = new Date();
   updateUI();
 
-  function switchTab(tabId) {
+  function switchTab(evt, tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     
     document.getElementById(tabId).classList.add('active');
-    event.target.classList.add('active');
+    if (evt && evt.target) {
+      evt.target.classList.add('active');
+    }
   }
 
   function updateCapital() {
@@ -503,14 +527,16 @@
     const trim = document.getElementById('trim').value || '';
     const year = document.getElementById('year').value || '2026';
     const boughtPrice = parseFloat(document.getElementById('boughtPrice').value) || 0;
+    const plateCost = parseFloat(document.getElementById('plateCost').value) || 0;
     const targetSellPrice = parseFloat(document.getElementById('targetSellPrice').value) || 0;
     const dateBought = document.getElementById('dateBought').value;
-    const notes = document.getElementById('notes').value || 'Quick Trade';
+    const notes = document.getElementById('notes').value || 'Clean';
 
     const newVehicle = {
       id: Date.now(),
       title: `${brand.toUpperCase()} ${model} ${year} ${trim}`.trim(),
       boughtPrice,
+      plateCost,
       targetSellPrice,
       dateBought,
       notes,
@@ -523,13 +549,48 @@
     vehicles.push(newVehicle);
     saveAndRefresh();
 
-    // Reset Form Fields
     document.getElementById('brand').value = '';
     document.getElementById('model').value = '';
     document.getElementById('trim').value = '';
     document.getElementById('boughtPrice').value = '';
+    document.getElementById('plateCost').value = '';
     document.getElementById('targetSellPrice').value = '';
     document.getElementById('notes').value = '';
+  }
+
+  function editDeduction(id) {
+    const vehicle = vehicles.find(v => v.id === id);
+    if (!vehicle) return;
+
+    const newTitle = prompt("Edit Vehicle Name/Title:", vehicle.title);
+    if (newTitle === null) return;
+
+    const newBoughtPrice = prompt("Edit Bought Price ($):", vehicle.boughtPrice);
+    if (newBoughtPrice === null) return;
+
+    const newPlateCost = prompt("Edit Plate Number Cost ($):", vehicle.plateCost || 0);
+    if (newPlateCost === null) return;
+
+    const newNotes = prompt("Edit Notes:", vehicle.notes || "");
+    if (newNotes === null) return;
+
+    const parsedBought = parseFloat(newBoughtPrice);
+    const parsedPlate = parseFloat(newPlateCost);
+
+    if (!isNaN(parsedBought) && !isNaN(parsedPlate)) {
+      vehicle.title = newTitle;
+      vehicle.boughtPrice = parsedBought;
+      vehicle.plateCost = parsedPlate;
+      vehicle.notes = newNotes;
+      saveAndRefresh();
+    }
+  }
+
+  function deleteVehicle(id) {
+    if (confirm("Are you sure you want to delete this vehicle record?")) {
+      vehicles = vehicles.filter(v => v.id !== id);
+      saveAndRefresh();
+    }
   }
 
   function sellVehicle(id) {
@@ -546,8 +607,9 @@
     vehicle.actualSellPrice = actualSellPrice;
     vehicle.dateSold = new Date().toISOString().split('T')[0];
     
-    // Profit tracked separately
-    vehicle.profit = vehicle.actualSellPrice - vehicle.boughtPrice;
+    // Total Investment = Bought Price + Plate Cost
+    const totalCost = vehicle.boughtPrice + (vehicle.plateCost || 0);
+    vehicle.profit = vehicle.actualSellPrice - totalCost;
 
     saveAndRefresh();
   }
@@ -558,20 +620,17 @@
   }
 
   function updateUI() {
-    // 1. Calculate Capital Metrics (Only active/unsold vehicles deduct from cash)
-    const activeVehiclesCost = vehicles
+    // Total Cost = Bought Price + Plate Cost for each active vehicle
+    const activeVehiclesTotalCost = vehicles
       .filter(v => !v.isSold)
-      .reduce((sum, v) => sum + v.boughtPrice, 0);
+      .reduce((sum, v) => sum + v.boughtPrice + (v.plateCost || 0), 0);
 
-    // Available Cash strictly stays (Starting Capital - Current Active Inventory Cost)
-    // Profits are NOT added back into Available Cash.
-    const availableCash = startingCapital - activeVehiclesCost;
+    const availableCash = startingCapital - activeVehiclesTotalCost;
 
-    // Render Capital Stats
     document.getElementById('displayStartingCapital').textContent = `$${startingCapital.toLocaleString()}`;
     document.getElementById('displayAvailableCash').textContent = `$${availableCash.toLocaleString()}`;
 
-    // 2. Render Capital Deductions List (Shows active deductions)
+    // Render Capital Inventory Deductions
     const deductionsList = document.getElementById('deductionsList');
     deductionsList.innerHTML = '';
     const activeDeductions = vehicles.filter(v => !v.isSold);
@@ -580,24 +639,30 @@
       deductionsList.innerHTML = `<div class="item-sub">No active inventory deductions.</div>`;
     } else {
       activeDeductions.forEach(v => {
+        const totalDeduction = v.boughtPrice + (v.plateCost || 0);
+        const plateInfo = v.plateCost ? ` + $${v.plateCost.toLocaleString()} Plate` : '';
         deductionsList.innerHTML += `
           <div class="list-item">
             <div>
               <div class="item-title">${v.title}</div>
-              <div class="item-sub">Bought: ${v.dateBought} (${v.notes})</div>
+              <div class="item-sub">Bought: ${v.dateBought} (${v.notes || 'Clean'}${plateInfo})</div>
             </div>
-            <div class="deduction-amount">-$${v.boughtPrice.toLocaleString()}</div>
+            <div class="item-right">
+              <div class="deduction-amount">-$${totalDeduction.toLocaleString()}</div>
+              <button class="action-btn btn-edit" onclick="editDeduction(${v.id})">Edit</button>
+              <button class="action-btn btn-delete" onclick="deleteVehicle(${v.id})">✕</button>
+            </div>
           </div>
         `;
       });
     }
 
-    // 3. Independent Profit Ledger Calculations
+    // Profit Calculations
     const lifetimeProfit = vehicles
       .filter(v => v.isSold)
       .reduce((sum, v) => sum + v.profit, 0);
 
-    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const currentMonth = new Date().toISOString().slice(0, 7);
     const thisMonthProfit = vehicles
       .filter(v => v.isSold && v.dateSold && v.dateSold.startsWith(currentMonth))
       .reduce((sum, v) => sum + v.profit, 0);
@@ -620,11 +685,12 @@
       inventoryList.innerHTML = `<div class="item-sub">No active inventory found.</div>`;
     } else {
       activeItems.forEach(v => {
+        const totalCost = v.boughtPrice + (v.plateCost || 0);
         inventoryList.innerHTML += `
           <div class="list-item">
             <div>
               <div class="item-title">${v.title}</div>
-              <div class="item-sub">Bought: $${v.boughtPrice.toLocaleString()} | Target: $${v.targetSellPrice.toLocaleString()}</div>
+              <div class="item-sub">Cost: $${totalCost.toLocaleString()} | Target: $${v.targetSellPrice.toLocaleString()}</div>
             </div>
             <button class="action-btn btn-green" onclick="sellVehicle(${v.id})">Mark Sold</button>
           </div>
@@ -641,11 +707,12 @@
       soldList.innerHTML = `<div class="item-sub">No completed sales recorded.</div>`;
     } else {
       soldItems.forEach(v => {
+        const totalCost = v.boughtPrice + (v.plateCost || 0);
         soldList.innerHTML += `
           <div class="list-item">
             <div>
               <div class="item-title">${v.title}</div>
-              <div class="item-sub">Bought: $${v.boughtPrice.toLocaleString()} | Sold: $${v.actualSellPrice.toLocaleString()} (${v.dateSold})</div>
+              <div class="item-sub">Total Cost: $${totalCost.toLocaleString()} | Sold: $${v.actualSellPrice.toLocaleString()} (${v.dateSold})</div>
             </div>
             <div class="profit-amount">+$${v.profit.toLocaleString()} Profit</div>
           </div>
@@ -654,6 +721,5 @@
     }
   }
 </script>
-
 </body>
 </html>
