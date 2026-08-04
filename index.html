@@ -546,7 +546,7 @@
     vehicle.actualSellPrice = actualSellPrice;
     vehicle.dateSold = new Date().toISOString().split('T')[0];
     
-    // Separate Profit Calculation Logic
+    // Profit tracked separately
     vehicle.profit = vehicle.actualSellPrice - vehicle.boughtPrice;
 
     saveAndRefresh();
@@ -558,46 +558,44 @@
   }
 
   function updateUI() {
-    // 1. Calculate Capital Metrics
-    const totalInventoryCost = vehicles
+    // 1. Calculate Capital Metrics (Only active/unsold vehicles deduct from cash)
+    const activeVehiclesCost = vehicles
       .filter(v => !v.isSold)
       .reduce((sum, v) => sum + v.boughtPrice, 0);
 
-    const totalRealizedProfits = vehicles
-      .filter(v => v.isSold)
-      .reduce((sum, v) => sum + v.profit, 0);
+    // Available Cash strictly stays (Starting Capital - Current Active Inventory Cost)
+    // Profits are NOT added back into Available Cash.
+    const availableCash = startingCapital - activeVehiclesCost;
 
-    // Available Cash = Starting Capital - Active Purchases + Total Realized Cash from Sales
-    const totalSalesRevenue = vehicles
-      .filter(v => v.isSold)
-      .reduce((sum, v) => sum + v.actualSellPrice, 0);
-    
-    const totalPurchasesAllTime = vehicles
-      .reduce((sum, v) => sum + v.boughtPrice, 0);
-
-    const availableCash = startingCapital - totalPurchasesAllTime + totalSalesRevenue;
-
-    // Render Stats
+    // Render Capital Stats
     document.getElementById('displayStartingCapital').textContent = `$${startingCapital.toLocaleString()}`;
     document.getElementById('displayAvailableCash').textContent = `$${availableCash.toLocaleString()}`;
 
-    // 2. Render Capital Deductions List
+    // 2. Render Capital Deductions List (Shows active deductions)
     const deductionsList = document.getElementById('deductionsList');
     deductionsList.innerHTML = '';
-    vehicles.forEach(v => {
-      deductionsList.innerHTML += `
-        <div class="list-item">
-          <div>
-            <div class="item-title">${v.title}</div>
-            <div class="item-sub">Bought: ${v.dateBought} (${v.notes})</div>
+    const activeDeductions = vehicles.filter(v => !v.isSold);
+    
+    if (activeDeductions.length === 0) {
+      deductionsList.innerHTML = `<div class="item-sub">No active inventory deductions.</div>`;
+    } else {
+      activeDeductions.forEach(v => {
+        deductionsList.innerHTML += `
+          <div class="list-item">
+            <div>
+              <div class="item-title">${v.title}</div>
+              <div class="item-sub">Bought: ${v.dateBought} (${v.notes})</div>
+            </div>
+            <div class="deduction-amount">-$${v.boughtPrice.toLocaleString()}</div>
           </div>
-          <div class="deduction-amount">-$${v.boughtPrice.toLocaleString()}</div>
-        </div>
-      `;
-    });
+        `;
+      });
+    }
 
-    // 3. Profit Ledger Calculations
-    const lifetimeProfit = totalRealizedProfits;
+    // 3. Independent Profit Ledger Calculations
+    const lifetimeProfit = vehicles
+      .filter(v => v.isSold)
+      .reduce((sum, v) => sum + v.profit, 0);
 
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
     const thisMonthProfit = vehicles
@@ -656,5 +654,6 @@
     }
   }
 </script>
+
 </body>
 </html>
