@@ -1945,4 +1945,657 @@
                 .sort(
                     (a, b) =>
                         new Date(b.createdAt) -
-                        new
+                        new Date(a.createdAt)
+                );
+
+            const list =
+                document.getElementById("priceVehicleList");
+
+            if (!vehicles.length) {
+                list.innerHTML = renderEmpty(
+                    "🏷️",
+                    query ? "No price records found" : "No vehicle records",
+                    query
+                        ? "Try another brand, model, year or trim."
+                        : "Your saved purchase and sale prices will appear here."
+                );
+
+                return;
+            }
+
+            list.innerHTML = vehicles
+                .map(vehicle =>
+                    renderVehicleCard(vehicle, "reference")
+                )
+                .join("");
+        }
+
+        function renderCapital() {
+            const availableCash = calculateCapital();
+
+            document.getElementById(
+                "startingCapitalDisplay"
+            ).textContent = money(
+                Number(state.startingCapital) +
+                Number(state.addedFunds)
+            );
+
+            const availableElement =
+                document.getElementById("availableCashDisplay");
+
+            availableElement.textContent = money(availableCash);
+
+            availableElement.className =
+                availableCash >= 0
+                    ? "summary-value"
+                    : "summary-value profit-negative";
+
+            const activeVehicles = state.vehicles
+                .filter(vehicle => vehicle.status === "active")
+                .sort(
+                    (a, b) =>
+                        new Date(b.dateBought) -
+                        new Date(a.dateBought)
+                );
+
+            const inventory =
+                document.getElementById("capitalInventory");
+
+            if (!activeVehicles.length) {
+                inventory.innerHTML = renderEmpty(
+                    "📊",
+                    "No active deductions",
+                    "Vehicle purchases will be deducted automatically."
+                );
+
+                return;
+            }
+
+            inventory.innerHTML = activeVehicles
+                .map(vehicle => `
+                    <div class="inventory-item">
+                        <div>
+                            <div class="inventory-name">
+                                ${escapeHtml(
+                                    vehicleFullName(vehicle)
+                                )}
+                            </div>
+
+                            <div class="inventory-date">
+                                Bought: ${formatDate(vehicle.dateBought)}
+                                (Quick Trade)
+                            </div>
+                        </div>
+
+                        <div class="inventory-amount">
+                            -${money(vehicle.buyPrice)}
+                        </div>
+                    </div>
+                `)
+                .join("");
+        }
+
+        function renderPhotoPreview() {
+            photoPreview.innerHTML = selectedPhotos
+                .map((photo, index) => `
+                    <div class="photo-item">
+                        <img
+                            src="${photo}"
+                            alt="Vehicle preview ${index + 1}"
+                        >
+
+                        <button
+                            class="photo-remove"
+                            type="button"
+                            onclick="removePhoto(${index})"
+                            aria-label="Remove image"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                `)
+                .join("");
+        }
+
+        function renderAll() {
+            renderActiveVehicles();
+            renderSoldVehicles();
+            renderPriceReference();
+            renderCapital();
+        }
+
+        async function resizeImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = event => {
+                    const image = new Image();
+
+                    image.onload = () => {
+                        const maxSize = 1100;
+                        let width = image.width;
+                        let height = image.height;
+
+                        if (width > height && width > maxSize) {
+                            height = Math.round(
+                                height * (maxSize / width)
+                            );
+
+                            width = maxSize;
+                        } else if (
+                            height >= width &&
+                            height > maxSize
+                        ) {
+                            width = Math.round(
+                                width * (maxSize / height)
+                            );
+
+                            height = maxSize;
+                        }
+
+                        const canvas =
+                            document.createElement("canvas");
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const context =
+                            canvas.getContext("2d");
+
+                        context.drawImage(
+                            image,
+                            0,
+                            0,
+                            width,
+                            height
+                        );
+
+                        resolve(
+                            canvas.toDataURL("image/jpeg", 0.72)
+                        );
+                    };
+
+                    image.onerror = () =>
+                        reject(new Error("Invalid image"));
+
+                    image.src = event.target.result;
+                };
+
+                reader.onerror = () =>
+                    reject(new Error("Could not read image"));
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removePhoto(index) {
+            selectedPhotos.splice(index, 1);
+            renderPhotoPreview();
+        }
+
+        async function handlePhotoUpload(event) {
+            const files = Array.from(event.target.files || []);
+
+            if (!files.length) {
+                return;
+            }
+
+            const remaining = 4 - selectedPhotos.length;
+
+            if (remaining <= 0) {
+                showToast("You can add a maximum of four photos.");
+                event.target.value = "";
+                return;
+            }
+
+            const accepted = files.slice(0, remaining);
+
+            try {
+                for (const file of accepted) {
+                    if (!file.type.startsWith("image/")) {
+                        continue;
+                    }
+
+                    const resized = await resizeImage(file);
+                    selectedPhotos.push(resized);
+                }
+
+                renderPhotoPreview();
+
+                if (files.length > remaining) {
+                    showToast("Only the first four photos were added.");
+                }
+            } catch (error) {
+                console.error(error);
+                showToast("One of the photos could not be processed.");
+            }
+
+            event.target.value = "";
+        }
+
+        function handleVehicleSubmit(event) {
+            event.preventDefault();
+
+            const formData = new FormData(vehicleForm);
+
+            const vehicle = {
+                id: createId(),
+                brand: formData.get("brand").trim(),
+                model: formData.get("model").trim(),
+                trim: formData.get("trim").trim(),
+                year: Number(formData.get("year")),
+                mileage: Number(formData.get("mileage")) || 0,
+                accident: formData.get("accident"),
+                warranty: formData.get("warranty"),
+                turbo: formData.get("turbo"),
+                fuel: formData.get("fuel"),
+                buyPrice: Number(formData.get("buyPrice")),
+                sellPrice: Number(formData.get("sellPrice")),
+                dateBought: formData.get("dateBought"),
+                notes: formData.get("notes").trim(),
+                photos: [...selectedPhotos],
+                status: "active",
+                actualSellPrice: null,
+                dateSold: null,
+                createdAt: new Date().toISOString()
+            };
+
+            if (!vehicle.brand || !vehicle.model) {
+                showToast("Please enter the vehicle brand and model.");
+                return;
+            }
+
+            if (
+                vehicle.buyPrice < 0 ||
+                vehicle.sellPrice < 0
+            ) {
+                showToast("Vehicle prices cannot be negative.");
+                return;
+            }
+
+            state.vehicles.push(vehicle);
+            saveState();
+
+            vehicleForm.reset();
+            selectedPhotos = [];
+            renderPhotoPreview();
+            dateBoughtInput.value = today();
+
+            renderAll();
+            changePage("active");
+
+            showToast("Vehicle saved and capital deducted.");
+        }
+
+        function deleteVehicle(id) {
+            const vehicle = state.vehicles.find(
+                item => item.id === id
+            );
+
+            if (!vehicle) {
+                return;
+            }
+
+            const confirmed = confirm(
+                `Delete ${vehicleFullName(vehicle)}?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            state.vehicles = state.vehicles.filter(
+                item => item.id !== id
+            );
+
+            saveState();
+            renderAll();
+            showToast("Vehicle deleted.");
+        }
+
+        function openSellModal(id) {
+            const vehicle = state.vehicles.find(
+                item => item.id === id
+            );
+
+            if (!vehicle) {
+                return;
+            }
+
+            sellingVehicleIdInput.value = id;
+            actualSellPriceInput.value =
+                Number(vehicle.sellPrice) || "";
+            dateSoldInput.value = today();
+
+            sellModal.classList.add("show");
+        }
+
+        function closeSellModal() {
+            sellModal.classList.remove("show");
+            sellingVehicleIdInput.value = "";
+            actualSellPriceInput.value = "";
+        }
+
+        function confirmVehicleSold() {
+            const id = sellingVehicleIdInput.value;
+
+            const vehicle = state.vehicles.find(
+                item => item.id === id
+            );
+
+            if (!vehicle) {
+                closeSellModal();
+                return;
+            }
+
+            const actualPrice =
+                Number(actualSellPriceInput.value);
+
+            if (
+                !actualSellPriceInput.value ||
+                actualPrice < 0
+            ) {
+                showToast("Enter the actual sale price.");
+                return;
+            }
+
+            vehicle.status = "sold";
+            vehicle.actualSellPrice = actualPrice;
+            vehicle.dateSold = dateSoldInput.value || today();
+
+            saveState();
+            closeSellModal();
+            renderAll();
+
+            showToast(
+                `Vehicle sold. Profit: ${money(
+                    actualPrice - Number(vehicle.buyPrice)
+                )}`
+            );
+        }
+
+        function returnVehicleToActive(id) {
+            const vehicle = state.vehicles.find(
+                item => item.id === id
+            );
+
+            if (!vehicle) {
+                return;
+            }
+
+            const confirmed = confirm(
+                `Return ${vehicleFullName(vehicle)} to active inventory?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            vehicle.status = "active";
+            vehicle.actualSellPrice = null;
+            vehicle.dateSold = null;
+
+            saveState();
+            renderAll();
+
+            showToast("Vehicle returned to active inventory.");
+        }
+
+        function setCapital() {
+            const input =
+                document.getElementById("capitalAmount");
+
+            const amount = Number(input.value);
+
+            if (!input.value || amount < 0) {
+                showToast("Enter a valid capital amount.");
+                return;
+            }
+
+            const confirmed = confirm(
+                "Replace your current total funds with this amount?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            state.startingCapital = amount;
+            state.addedFunds = 0;
+
+            input.value = "";
+            saveState();
+            renderAll();
+
+            showToast("Capital updated.");
+        }
+
+        function addCapital() {
+            const input =
+                document.getElementById("capitalAmount");
+
+            const amount = Number(input.value);
+
+            if (!input.value || amount <= 0) {
+                showToast("Enter an amount greater than zero.");
+                return;
+            }
+
+            state.addedFunds += amount;
+
+            input.value = "";
+            saveState();
+            renderAll();
+
+            showToast(`${money(amount)} added to capital.`);
+        }
+
+        function exportBackup() {
+            const backup = {
+                app: "Quick Buy & Sell",
+                exportedAt: new Date().toISOString(),
+                data: state
+            };
+
+            const blob = new Blob(
+                [JSON.stringify(backup, null, 2)],
+                { type: "application/json" }
+            );
+
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+
+            anchor.href = url;
+            anchor.download =
+                `quick-buy-sell-backup-${today()}.json`;
+
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+
+            URL.revokeObjectURL(url);
+
+            showToast("Backup exported.");
+        }
+
+        function importBackup(event) {
+            const file = event.target.files?.[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = loadEvent => {
+                try {
+                    const parsed = JSON.parse(
+                        loadEvent.target.result
+                    );
+
+                    const importedState =
+                        parsed.data || parsed;
+
+                    if (
+                        !importedState ||
+                        !Array.isArray(importedState.vehicles)
+                    ) {
+                        throw new Error("Invalid backup");
+                    }
+
+                    const confirmed = confirm(
+                        "Import this backup and replace your current data?"
+                    );
+
+                    if (!confirmed) {
+                        event.target.value = "";
+                        return;
+                    }
+
+                    state = {
+                        startingCapital:
+                            Number(
+                                importedState.startingCapital
+                            ) || 0,
+
+                        addedFunds:
+                            Number(
+                                importedState.addedFunds
+                            ) || 0,
+
+                        vehicles:
+                            importedState.vehicles
+                    };
+
+                    saveState();
+                    renderAll();
+
+                    showToast("Backup imported successfully.");
+                } catch (error) {
+                    console.error(error);
+                    showToast("This is not a valid backup file.");
+                }
+
+                event.target.value = "";
+            };
+
+            reader.readAsText(file);
+        }
+
+        function resetAllData() {
+            const firstConfirmation = confirm(
+                "Delete all vehicles, sales and capital data?"
+            );
+
+            if (!firstConfirmation) {
+                return;
+            }
+
+            const secondConfirmation = confirm(
+                "This cannot be undone. Are you completely sure?"
+            );
+
+            if (!secondConfirmation) {
+                return;
+            }
+
+            state = structuredClone(defaultState);
+            selectedPhotos = [];
+
+            localStorage.removeItem(STORAGE_KEY);
+
+            vehicleForm.reset();
+            dateBoughtInput.value = today();
+
+            renderPhotoPreview();
+            renderAll();
+            changePage("active");
+
+            showToast("All data has been reset.");
+        }
+
+        document
+            .querySelectorAll(".nav-item")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+                    changePage(button.dataset.page);
+                });
+            });
+
+        vehicleForm.addEventListener(
+            "submit",
+            handleVehicleSubmit
+        );
+
+        vehiclePhotosInput.addEventListener(
+            "change",
+            handlePhotoUpload
+        );
+
+        activeSearch.addEventListener(
+            "input",
+            renderActiveVehicles
+        );
+
+        soldSearch.addEventListener(
+            "input",
+            renderSoldVehicles
+        );
+
+        priceSearch.addEventListener(
+            "input",
+            renderPriceReference
+        );
+
+        document
+            .getElementById("setCapitalButton")
+            .addEventListener("click", setCapital);
+
+        document
+            .getElementById("addCapitalButton")
+            .addEventListener("click", addCapital);
+
+        document
+            .getElementById("closeSellModal")
+            .addEventListener("click", closeSellModal);
+
+        document
+            .getElementById("cancelSoldButton")
+            .addEventListener("click", closeSellModal);
+
+        document
+            .getElementById("confirmSoldButton")
+            .addEventListener("click", confirmVehicleSold);
+
+        document
+            .getElementById("exportButton")
+            .addEventListener("click", exportBackup);
+
+        document
+            .getElementById("importFile")
+            .addEventListener("change", importBackup);
+
+        document
+            .getElementById("resetButton")
+            .addEventListener("click", resetAllData);
+
+        sellModal.addEventListener("click", event => {
+            if (event.target === sellModal) {
+                closeSellModal();
+            }
+        });
+
+        dateBoughtInput.value = today();
+        dateSoldInput.value = today();
+
+        renderPhotoPreview();
+        renderAll();
+
+        window.removePhoto = removePhoto;
+        window.openSellModal = openSellModal;
+        window.deleteVehicle = deleteVehicle;
+        window.returnVehicleToActive =
+            returnVehicleToActive;
+    </script>
+</body>
+</html>
