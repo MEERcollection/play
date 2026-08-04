@@ -195,13 +195,18 @@
       gap: 8px;
     }
 
-    .input-box input, .input-box select {
+    .input-box input, .input-box select, .input-box textarea {
       background: transparent;
       border: none;
       color: #fff;
       width: 100%;
       outline: none;
       font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
     }
 
     .btn {
@@ -218,20 +223,10 @@
       gap: 8px;
     }
 
-    .btn-orange {
-      background: var(--primary-orange);
-      color: #000;
-    }
-
-    .btn-purple {
-      background: var(--primary-purple);
-      color: #fff;
-    }
-
-    .btn-green {
-      background: var(--green-accent);
-      color: #fff;
-    }
+    .btn-orange { background: var(--primary-orange); color: #000; }
+    .btn-purple { background: var(--primary-purple); color: #fff; }
+    .btn-green  { background: var(--green-accent); color: #fff; }
+    .btn-blue   { background: #3b82f6; color: #fff; }
 
     .list-container {
       display: flex;
@@ -250,33 +245,11 @@
       gap: 8px;
     }
 
-    .item-title {
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .item-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .item-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .deduction-amount {
-      color: var(--red-accent);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .profit-amount {
-      color: var(--green-accent);
-      font-weight: 700;
-      font-size: 14px;
-    }
+    .item-title { font-weight: 700; font-size: 14px; }
+    .item-sub { font-size: 11px; color: var(--text-muted); }
+    .item-right { display: flex; align-items: center; gap: 10px; }
+    .deduction-amount { color: var(--red-accent); font-weight: 700; font-size: 14px; }
+    .profit-amount { color: var(--green-accent); font-weight: 700; font-size: 14px; }
 
     .action-btn {
       padding: 6px 10px;
@@ -287,15 +260,8 @@
       font-weight: 600;
     }
 
-    .btn-edit {
-      background: #374151;
-      color: #fff;
-    }
-
-    .btn-delete {
-      background: var(--red-accent);
-      color: #fff;
-    }
+    .btn-edit { background: #374151; color: #fff; }
+    .btn-delete { background: var(--red-accent); color: #fff; }
   </style>
 </head>
 <body>
@@ -490,6 +456,21 @@
         <!-- Sold cars render here -->
       </div>
     </div>
+
+    <!-- SHARE & SYNC DATA SECTION -->
+    <div class="card">
+      <div class="section-title">📲 PARTNER DATA TRANSFER</div>
+      <button class="btn btn-blue" onclick="exportData()">📋 Copy All Data Code</button>
+      
+      <div class="form-group" style="margin-top: 10px;">
+        <label>Paste Partner's Data Code Below:</label>
+        <div class="input-box">
+          <textarea id="importBox" placeholder="Paste data code here..."></textarea>
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="importData()">📥 Import & Replace Data</button>
+    </div>
+
   </div>
 
 </div>
@@ -583,7 +564,6 @@
       vehicle.plateCost = parsedPlate;
       vehicle.notes = newNotes;
       
-      // Recalculate 50% profit if vehicle was already sold
       if (vehicle.isSold) {
         const totalCost = vehicle.boughtPrice + (vehicle.plateCost || 0);
         vehicle.profit = (vehicle.actualSellPrice - totalCost) / 2;
@@ -614,21 +594,55 @@
     vehicle.actualSellPrice = actualSellPrice;
     vehicle.dateSold = new Date().toISOString().split('T')[0];
     
-    // Total Cost & 50% Partner Profit Split
     const totalCost = vehicle.boughtPrice + (vehicle.plateCost || 0);
     const totalNetProfit = vehicle.actualSellPrice - totalCost;
-    vehicle.profit = totalNetProfit / 2; // Divided by 2 for partner split
+    vehicle.profit = totalNetProfit / 2;
 
     saveAndRefresh();
   }
 
+  function exportData() {
+    const dump = JSON.stringify({
+      startingCapital: startingCapital,
+      vehicles: vehicles
+    });
+    navigator.clipboard.writeText(dump).then(() => {
+      alert("✅ Data code copied to clipboard! Share this code with your partner.");
+    }).catch(() => {
+      prompt("Copy this data code and send it to your partner:", dump);
+    });
+  }
+
+  function importData() {
+    const code = document.getElementById('importBox').value.trim();
+    if (!code) {
+      alert("Please paste a data code first!");
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(code);
+      if (parsed && typeof parsed.startingCapital === 'number' && Array.isArray(parsed.vehicles)) {
+        startingCapital = parsed.startingCapital;
+        vehicles = parsed.vehicles;
+        saveAndRefresh();
+        document.getElementById('importBox').value = '';
+        alert("🎉 Partner data imported successfully!");
+      } else {
+        alert("Invalid data format.");
+      }
+    } catch (e) {
+      alert("Error importing data. Please make sure the whole code was pasted.");
+    }
+  }
+
   function saveAndRefresh() {
+    localStorage.setItem('startingCapital', startingCapital);
     localStorage.setItem('vehicles', JSON.stringify(vehicles));
     updateUI();
   }
 
   function updateUI() {
-    // 1. Calculate Active Deductions from Capital
     const activeVehiclesTotalCost = vehicles
       .filter(v => !v.isSold)
       .reduce((sum, v) => sum + v.boughtPrice + (v.plateCost || 0), 0);
@@ -638,7 +652,6 @@
     document.getElementById('displayStartingCapital').textContent = `$${startingCapital.toLocaleString()}`;
     document.getElementById('displayAvailableCash').textContent = `$${availableCash.toLocaleString()}`;
 
-    // 2. Capital Inventory Deductions
     const deductionsList = document.getElementById('deductionsList');
     deductionsList.innerHTML = '';
     const activeDeductions = vehicles.filter(v => !v.isSold);
@@ -665,7 +678,6 @@
       });
     }
 
-    // 3. Profit Calculations (Reflects 50% Partner Split)
     const lifetimeProfit = vehicles
       .filter(v => v.isSold)
       .reduce((sum, v) => sum + v.profit, 0);
@@ -684,7 +696,6 @@
   function renderLedger() {
     const query = (document.getElementById('searchInput').value || '').toLowerCase();
 
-    // Active Inventory
     const inventoryList = document.getElementById('inventoryList');
     inventoryList.innerHTML = '';
     const activeItems = vehicles.filter(v => !v.isSold && v.title.toLowerCase().includes(query));
@@ -706,7 +717,6 @@
       });
     }
 
-    // Sold Vehicles
     const soldList = document.getElementById('soldList');
     soldList.innerHTML = '';
     const soldItems = vehicles.filter(v => v.isSold && v.title.toLowerCase().includes(query));
@@ -730,6 +740,5 @@
     }
   }
 </script>
-
 </body>
 </html>
