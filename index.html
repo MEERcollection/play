@@ -2,146 +2,1947 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For Safa ❤️</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#030817">
+
+    <title>Quick Buy & Sell</title>
+
     <style>
-        :root { --bg: #1a0101; --gold: #d4af37; }
-        body {
-            background-color: var(--bg); color: white;
-            font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0;
-            height: 100vh; display: flex; justify-content: center; align-items: center;
-            overflow: hidden; text-align: center;
+        :root {
+            --background: #030817;
+            --panel: #091123;
+            --panel-light: #0d172c;
+            --input: #050b18;
+            --border: #1b2942;
+            --text: #f8fafc;
+            --muted: #8190aa;
+            --blue: #4f83ff;
+            --orange: #ff9f0a;
+            --green: #4ade80;
+            --red: #ff6b72;
+            --purple: #a855f7;
+            --yellow: #facc15;
+            --nav-height: 82px;
         }
-        #canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
-        .ui-wrapper { position: relative; z-index: 10; width: 90%; max-width: 450px; padding: 20px; }
-        
-        .btn-container { 
-            display: flex; justify-content: center; align-items: center; 
-            gap: 15px; margin-top: 30px; position: relative; width: 100%;
-            min-height: 60px;
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            padding-bottom: calc(var(--nav-height) + 30px);
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(79, 131, 255, 0.09),
+                    transparent 28%
+                ),
+                var(--background);
+            color: var(--text);
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
         }
 
         button {
-            background: var(--gold); color: black; border: none;
-            padding: 12px 20px; border-radius: 50px; font-weight: bold;
-            cursor: pointer; font-size: 0.9rem; white-space: nowrap;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-            transition: transform 0.1s ease;
+            cursor: pointer;
         }
 
-        #no-btn, #handak-btn { transition: all 0.1s ease; z-index: 1001; }
-
-        #overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 2000; display: flex;
-            flex-direction: column; justify-content: center; align-items: center;
+        .app {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 28px 16px 30px;
         }
 
-        .gif-img { width: 100%; max-width: 250px; border-radius: 20px; border: 2px solid var(--gold); margin: 15px 0; }
-        #stage-2, #stage-zor, #stage-handak, #stage-final { display: none; }
-        .kurdish-txt { font-size: 1.8rem; color: var(--gold); font-weight: bold; }
+        .page {
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            margin: 18px 0 28px;
+        }
+
+        .title {
+            font-size: clamp(34px, 8vw, 52px);
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .title .blue {
+            color: var(--blue);
+        }
+
+        .title .purple {
+            color: var(--purple);
+        }
+
+        .subtitle {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: 26px;
+            background: rgba(9, 17, 35, 0.96);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.17);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .step {
+            display: grid;
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--orange);
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .step.blue-step {
+            background: var(--blue);
+        }
+
+        .step.purple-step {
+            background: var(--purple);
+        }
+
+        .section-icon {
+            font-size: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        .field {
+            position: relative;
+            min-width: 0;
+        }
+
+        .field-icon {
+            position: absolute;
+            top: 17px;
+            left: 17px;
+            display: grid;
+            width: 45px;
+            height: 45px;
+            place-items: center;
+            z-index: 2;
+            border: 1px solid #243758;
+            border-radius: 14px;
+            background: #101b32;
+            font-size: 22px;
+        }
+
+        .field label {
+            position: absolute;
+            top: 15px;
+            left: 77px;
+            z-index: 2;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.45px;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 34px 16px 13px 77px;
+            outline: none;
+            border: 1px solid var(--border);
+            border-radius: 21px;
+            background: var(--input);
+            color: var(--text);
+            font-size: 18px;
+            font-weight: 700;
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .field textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(79, 131, 255, 0.12);
+        }
+
+        .price-buy label {
+            color: var(--red);
+        }
+
+        .price-sell label {
+            color: var(--green);
+        }
+
+        .button {
+            width: 100%;
+            min-height: 66px;
+            border: none;
+            border-radius: 21px;
+            color: white;
+            font-size: 19px;
+            font-weight: 900;
+            transition:
+                transform 0.15s ease,
+                opacity 0.15s ease;
+        }
+
+        .button:active {
+            transform: scale(0.985);
+        }
+
+        .button.orange {
+            background: linear-gradient(135deg, #ffa600, #ed8600);
+        }
+
+        .button.purple {
+            background: linear-gradient(135deg, #a855f7, #7e22ce);
+        }
+
+        .button.blue {
+            background: linear-gradient(135deg, #4f83ff, #2555d9);
+        }
+
+        .button.green {
+            background: linear-gradient(135deg, #32d583, #16a25c);
+        }
+
+        .button.red {
+            background: linear-gradient(135deg, #ff626a, #dc3344);
+        }
+
+        .button.secondary {
+            border: 1px solid var(--border);
+            background: #10192b;
+        }
+
+        .button.small {
+            min-height: 46px;
+            padding: 0 16px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .button-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-height: 112px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 23px;
+            background: var(--panel);
+        }
+
+        .summary-icon {
+            display: grid;
+            width: 54px;
+            height: 54px;
+            flex-shrink: 0;
+            place-items: center;
+            border-radius: 16px;
+            background: #111d36;
+            font-size: 25px;
+        }
+
+        .summary-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .summary-value {
+            margin-top: 5px;
+            color: var(--green);
+            font-size: clamp(22px, 5vw, 31px);
+            font-weight: 900;
+            overflow-wrap: anywhere;
+        }
+
+        .summary-value.purple-value {
+            color: var(--purple);
+        }
+
+        .summary-value.blue-value {
+            color: var(--blue);
+        }
+
+        .summary-value.orange-value {
+            color: var(--orange);
+        }
+
+        .photo-input {
+            display: none;
+        }
+
+        .photo-button {
+            display: flex;
+            min-height: 74px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            border: 1px dashed #38517d;
+            border-radius: 20px;
+            background: #07101f;
+            color: var(--text);
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .photo-item {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1.25 / 1;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: #050b18;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: grid;
+            width: 30px;
+            height: 30px;
+            place-items: center;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            font-size: 16px;
+        }
+
+        .search {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .search span {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            font-size: 23px;
+        }
+
+        .search input {
+            width: 100%;
+            height: 68px;
+            padding: 0 20px 0 57px;
+            outline: none;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: var(--panel);
+            color: white;
+            font-size: 17px;
+        }
+
+        .vehicle-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .vehicle-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: var(--panel);
+        }
+
+        .vehicle-cover {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(79, 131, 255, 0.17),
+                    rgba(168, 85, 247, 0.08)
+                ),
+                #0a1325;
+        }
+
+        .vehicle-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .vehicle-placeholder {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            place-items: center;
+            font-size: 70px;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 13px;
+            left: 13px;
+            padding: 8px 13px;
+            border-radius: 999px;
+            background: rgba(3, 8, 23, 0.88);
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .vehicle-content {
+            padding: 18px;
+        }
+
+        .vehicle-name {
+            font-size: 20px;
+            font-weight: 900;
+            line-height: 1.25;
+        }
+
+        .vehicle-meta {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .price-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 9px;
+            margin-top: 15px;
+        }
+
+        .price-box {
+            padding: 12px 8px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: var(--input);
+            text-align: center;
+        }
+
+        .price-box small {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .price-box strong {
+            display: block;
+            margin-top: 4px;
+            font-size: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .profit-positive {
+            color: var(--green);
+        }
+
+        .profit-negative {
+            color: var(--red);
+        }
+
+        .inventory-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            background: var(--input);
+        }
+
+        .inventory-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .inventory-name {
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .inventory-date {
+            margin-top: 4px;
+            color: var(--orange);
+            font-size: 13px;
+        }
+
+        .inventory-amount {
+            flex-shrink: 0;
+            color: var(--red);
+            font-size: 17px;
+            font-weight: 900;
+        }
+
+        .empty {
+            padding: 38px 20px;
+            border: 1px dashed var(--border);
+            border-radius: 22px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .empty-icon {
+            margin-bottom: 10px;
+            font-size: 45px;
+        }
+
+        .empty-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .empty-text {
+            margin-top: 7px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+            height: var(--nav-height);
+            border-top: 1px solid var(--border);
+            background: rgba(3, 8, 23, 0.96);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .bottom-nav-inner {
+            display: grid;
+            width: 100%;
+            max-width: 900px;
+            height: 100%;
+            margin: 0 auto;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 3px;
+            padding: 7px;
+        }
+
+        .nav-item {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+            border: none;
+            border-radius: 16px;
+            background: transparent;
+            color: var(--muted);
+        }
+
+        .nav-item.active {
+            background: #101b34;
+            color: var(--blue);
+        }
+
+        .nav-icon {
+            font-size: 23px;
+            line-height: 1;
+        }
+
+        .nav-label {
+            max-width: 100%;
+            font-size: 10px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: calc(var(--nav-height) + 18px);
+            left: 16px;
+            z-index: 2000;
+            max-width: 500px;
+            margin: auto;
+            padding: 15px 18px;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            background: #121d32;
+            color: white;
+            font-weight: 800;
+            text-align: center;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+            transition: 0.25s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.72);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 620px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 23px;
+            border: 1px solid var(--border);
+            border-radius: 27px;
+            background: var(--panel);
+            animation: modalUp 0.22s ease;
+        }
+
+        @keyframes modalUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .close-modal {
+            display: grid;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background: var(--input);
+            color: white;
+            font-size: 20px;
+        }
+
+        .danger-zone {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .helper-text {
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .app {
+                padding: 17px 12px 25px;
+            }
+
+            .card {
+                padding: 18px 14px;
+                border-radius: 23px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .summary-box {
+                min-height: 105px;
+                padding: 13px;
+                gap: 10px;
+            }
+
+            .summary-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 13px;
+                font-size: 21px;
+            }
+
+            .summary-value {
+                font-size: 21px;
+            }
+
+            .price-row {
+                gap: 6px;
+            }
+
+            .price-box strong {
+                font-size: 13px;
+            }
+
+            .section-heading {
+                font-size: 16px;
+            }
+
+            .step {
+                width: 41px;
+                height: 41px;
+            }
+
+            .nav-label {
+                font-size: 9px;
+            }
+        }
+
+        @media (min-width: 700px) {
+            .vehicle-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
     </style>
 </head>
+
 <body>
+    <main class="app">
 
-<canvas id="canvas"></canvas>
+        <!-- ACTIVE HUB -->
+        <section id="page-active" class="page active">
+            <header class="header">
+                <h1 class="title">
+                    Active <span class="blue">Hub</span>
+                </h1>
 
-<audio id="bg-music" loop>
-    <source src="https://www.dropbox.com/scl/fi/do7njslfvq5l6xqf0b2ho/v24044gl0000d4tkunnog65ppbq0o2g0.mp4?rlkey=bkwkv5z88jyl5sbu4anypis3s&st=16g37775&raw=1" type="audio/mp4">
-</audio>
+                <p class="subtitle">
+                    View the vehicles you currently own and plan your next sale.
+                </p>
+            </header>
 
-<div id="overlay">
-    <h1 style="color: var(--gold); font-size: 3.5rem;">😘🤭</h1>
-    <button onclick="unlockMusic()">Open Surprise 🎁</button>
-</div>
+            <div class="summary-grid">
+                <article class="summary-box">
+                    <div class="summary-icon">🚘</div>
+                    <div>
+                        <div class="summary-label">Active Cars</div>
+                        <div id="activeCount" class="summary-value blue-value">0</div>
+                    </div>
+                </article>
 
-<div class="ui-wrapper">
-    <div id="stage-1">
-        <h1 style="font-size: 2.2rem;">AMNT XOSH DAWY 🥹</h1>
-        <div class="btn-container">
-            <button id="yes-btn" onclick="nextStage('2')">YES</button>
-            <button id="no-btn" onmouseover="moveBtn(this)" onclick="moveBtn(this)">NO</button>
+                <article class="summary-box">
+                    <div class="summary-icon">📈</div>
+                    <div>
+                        <div class="summary-label">Expected Profit</div>
+                        <div id="expectedProfit" class="summary-value">$0</div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="search">
+                <span>🔍</span>
+                <input
+                    id="activeSearch"
+                    type="search"
+                    placeholder="Search active vehicles..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div id="activeVehicleList" class="vehicle-list"></div>
+        </section>
+
+        <!-- QUICK TRADE -->
+        <section id="page-trade" class="page">
+            <header class="header">
+                <h1 class="title">
+                    Quick <span class="blue">Buy & Sell</span>
+                </h1>
+
+                <p class="subtitle">
+                    Record the direct buy price, expected sale price and vehicle details.
+                </p>
+            </header>
+
+            <form id="vehicleForm">
+                <article class="card">
+                    <div class="section-title">
+                        <div class="section-heading">
+                            <span class="step">1</span>
+                            Vehicle Details
+                        </div>
+
+                        <span class="section-icon">🚘</span>
+                    </div>
+
+                    <div class="grid">
+                        <div class="field">
+                            <span class="field-icon">🛡️</span>
+                            <label for="brand">Brand</label>
+                            <input
+                                id="brand"
+                                name="brand"
+                                type="text"
+                                placeholder="Toyota"
+                                required
+                            >
+                        </div>
+
+                        <div class="field">
+                            <span class="field-icon">🚗</span>
+                            <label for="model">Model</label>
+                            <input
+                                id="model"
+                                name="model"
+                                type="text"
+                                placeholder="Land Cruiser"
+                                required
+                            >
+                        </div>
+
+                        <div class="field">
+                            <span class="field-icon">⭐</span>
+                            <label for="trim">Trim / Edition</label>
+                            <input
+                                id="trim"
+                                name="trim"
+                                type="text"
+                                placeholder="VXR"
+                            >
+                        </div>
+
+                        <div class="field">
+                            <span class="field-icon">📅</span>
+                            <label for="year">Year</label>
+                            <input
+                                id="year"
+                                name="year"
+                                type="number"
+                                min="1950"
+                                max="2100"
+                                placeholder="2023"
+                                required
+                            >
+                        </div>
+
+                        <div class="field full">
+                            <span class="field-icon">🛞</span>
+                            <label for="mileage">KM / Mileage</label>
+                            <input
+                                id="mileage"
+                                name="mileage"
+                                type="number"
+                                min="0"
+                                placeholder="52000"
+                            >
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="section-title">
+                        <div class="section-heading">
+                            <span class="step">2</span>
+                            Vehicle Condition
+                        </div>
+
+                        <span class="section-icon">📋</span>
+                    </div>
+
+                    <div class="grid">
+                        <div class="field">
+                            <span class="field-icon">🛡️</span>
+                            <label for="accident">Accident History</label>
+                            <select id="accident" name="accident">
+                                <option value="Clean - No Crash">
+                                    Clean - No Crash
+                                </option>
+
+                                <option value="Minor Accident">
+                                    Minor Accident
+                                </option>
+
+                                <option value="Major Accident">
+                                    Major Accident
+                                </option>
+
+                                <option value="Unknown">
+                                    Unknown
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <span class="field-icon">✅</span>
+                            <label for="warranty">Warranty Status</label>
+                            <select id="warranty" name="warranty">
+                                <option value="No Warranty">
+                                    No Warranty
+                                </option>
+
+                                <option value="Dealer Warranty">
+                                    Dealer Warranty
+                                </option>
+
+                                <option value="Company Warranty">
+                                    Company Warranty
+                                </option>
+
+                                <option value="Extended Warranty">
+                                    Extended Warranty
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <span class="field-icon">🌀</span>
+                            <label for="turbo">Turbo Option</label>
+                            <select id="turbo" name="turbo">
+                                <option value="Non-Turbo">Non-Turbo</option>
+                                <option value="Turbo">Turbo</option>
+                                <option value="Twin Turbo">Twin Turbo</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <span class="field-icon">⛽</span>
+                            <label for="fuel">Fuel Type</label>
+                            <select id="fuel" name="fuel">
+                                <option value="Gasoline">Gasoline</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="Electric">Electric</option>
+                            </select>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="section-title">
+                        <div class="section-heading">
+                            <span class="step">3</span>
+                            Pricing & Purchase
+                        </div>
+
+                        <span class="section-icon">📈</span>
+                    </div>
+
+                    <div class="grid">
+                        <div class="field price-buy">
+                            <span class="field-icon">💵</span>
+                            <label for="buyPrice">Bought Price ($)</label>
+                            <input
+                                id="buyPrice"
+                                name="buyPrice"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="30000"
+                                required
+                            >
+                        </div>
+
+                        <div class="field price-sell">
+                            <span class="field-icon">🏷️</span>
+                            <label for="sellPrice">Expected Sell Price ($)</label>
+                            <input
+                                id="sellPrice"
+                                name="sellPrice"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="35000"
+                                required
+                            >
+                        </div>
+
+                        <div class="field full">
+                            <span class="field-icon">📅</span>
+                            <label for="dateBought">Date Bought</label>
+                            <input
+                                id="dateBought"
+                                name="dateBought"
+                                type="date"
+                                required
+                            >
+                        </div>
+
+                        <div class="field full">
+                            <span class="field-icon">📝</span>
+                            <label for="notes">Notes / Extra Details</label>
+                            <textarea
+                                id="notes"
+                                name="notes"
+                                placeholder="Radar, clean title, direct trade..."
+                            ></textarea>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="section-title">
+                        <div class="section-heading">
+                            <span class="step">4</span>
+                            Vehicle Photos
+                        </div>
+
+                        <span class="section-icon">📸</span>
+                    </div>
+
+                    <label for="vehiclePhotos" class="photo-button">
+                        📷 Add up to four photos
+                    </label>
+
+                    <input
+                        id="vehiclePhotos"
+                        class="photo-input"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                    >
+
+                    <p class="helper-text">
+                        Photos are stored inside your browser. Smaller images work best.
+                    </p>
+
+                    <div id="photoPreview" class="photo-grid"></div>
+                </article>
+
+                <button class="button orange" type="submit">
+                    💾 Save Bought Vehicle
+                </button>
+            </form>
+        </section>
+
+        <!-- SOLD CARS -->
+        <section id="page-sold" class="page">
+            <header class="header">
+                <h1 class="title">
+                    Cars <span class="blue">Sold</span>
+                </h1>
+
+                <p class="subtitle">
+                    Review completed sales and your total realized profit.
+                </p>
+            </header>
+
+            <div class="summary-grid">
+                <article class="summary-box">
+                    <div class="summary-icon">🤝</div>
+                    <div>
+                        <div class="summary-label">Sold Cars</div>
+                        <div id="soldCount" class="summary-value blue-value">0</div>
+                    </div>
+                </article>
+
+                <article class="summary-box">
+                    <div class="summary-icon">💰</div>
+                    <div>
+                        <div class="summary-label">Total Profit</div>
+                        <div id="totalProfit" class="summary-value">$0</div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="search">
+                <span>🔍</span>
+                <input
+                    id="soldSearch"
+                    type="search"
+                    placeholder="Search sold vehicles..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div id="soldVehicleList" class="vehicle-list"></div>
+        </section>
+
+        <!-- PRICE REFERENCE -->
+        <section id="page-price" class="page">
+            <header class="header">
+                <h1 class="title">
+                    Price <span class="blue">Reference</span>
+                </h1>
+
+                <p class="subtitle">
+                    Search your own vehicle records and compare purchase and sale prices.
+                </p>
+            </header>
+
+            <div class="search">
+                <span>🔍</span>
+                <input
+                    id="priceSearch"
+                    type="search"
+                    placeholder="Search brand, model, year or trim..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div id="priceVehicleList" class="vehicle-list"></div>
+        </section>
+
+        <!-- CAPITAL -->
+        <section id="page-capital" class="page">
+            <header class="header">
+                <h1 class="title">
+                    My <span class="blue">Capital</span>
+                </h1>
+
+                <p class="subtitle">
+                    Manage your total funds and track automatic vehicle purchase deductions.
+                </p>
+            </header>
+
+            <div class="summary-grid">
+                <article class="summary-box">
+                    <div class="summary-icon">💼</div>
+                    <div>
+                        <div class="summary-label">Starting Capital</div>
+                        <div
+                            id="startingCapitalDisplay"
+                            class="summary-value purple-value"
+                        >
+                            $0
+                        </div>
+                    </div>
+                </article>
+
+                <article class="summary-box">
+                    <div class="summary-icon">💵</div>
+                    <div>
+                        <div class="summary-label">Available Cash</div>
+                        <div id="availableCashDisplay" class="summary-value">
+                            $0
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <article class="card">
+                <div class="section-title">
+                    <div class="section-heading">
+                        <span class="step purple-step">1</span>
+                        Set / Add Total Funds
+                    </div>
+
+                    <span class="section-icon">🏦</span>
+                </div>
+
+                <div class="field full">
+                    <span class="field-icon">💵</span>
+                    <label for="capitalAmount">Capital Amount ($)</label>
+                    <input
+                        id="capitalAmount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="e.g. 100000"
+                    >
+                </div>
+
+                <div class="button-row">
+                    <button
+                        id="setCapitalButton"
+                        class="button purple"
+                        type="button"
+                    >
+                        Set Capital
+                    </button>
+
+                    <button
+                        id="addCapitalButton"
+                        class="button blue"
+                        type="button"
+                    >
+                        Add Funds
+                    </button>
+                </div>
+
+                <p class="helper-text">
+                    “Set Capital” replaces the starting amount. “Add Funds” adds new cash.
+                </p>
+            </article>
+
+            <article class="card">
+                <div class="section-title">
+                    <div class="section-heading">
+                        <span class="step blue-step">2</span>
+                        Capital Inventory Deductions
+                    </div>
+
+                    <span class="section-icon">📊</span>
+                </div>
+
+                <div id="capitalInventory"></div>
+            </article>
+
+            <article class="card">
+                <div class="section-title">
+                    <div class="section-heading">
+                        Settings
+                    </div>
+
+                    <span class="section-icon">⚙️</span>
+                </div>
+
+                <button
+                    id="exportButton"
+                    class="button secondary"
+                    type="button"
+                >
+                    📤 Export Backup
+                </button>
+
+                <div style="height: 10px;"></div>
+
+                <label for="importFile" class="button secondary" style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                ">
+                    📥 Import Backup
+                </label>
+
+                <input
+                    id="importFile"
+                    class="photo-input"
+                    type="file"
+                    accept=".json,application/json"
+                >
+
+                <div class="danger-zone">
+                    <button
+                        id="resetButton"
+                        class="button red"
+                        type="button"
+                    >
+                        🗑️ Reset All Data
+                    </button>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <button class="nav-item active" data-page="active" type="button">
+                <span class="nav-icon">🚘</span>
+                <span class="nav-label">Active Hub</span>
+            </button>
+
+            <button class="nav-item" data-page="trade" type="button">
+                <span class="nav-icon">⚡</span>
+                <span class="nav-label">Quick Trade</span>
+            </button>
+
+            <button class="nav-item" data-page="sold" type="button">
+                <span class="nav-icon">🤝</span>
+                <span class="nav-label">Cars Sold</span>
+            </button>
+
+            <button class="nav-item" data-page="price" type="button">
+                <span class="nav-icon">🏷️</span>
+                <span class="nav-label">Price Ref</span>
+            </button>
+
+            <button class="nav-item" data-page="capital" type="button">
+                <span class="nav-icon">💵</span>
+                <span class="nav-label">Capital</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- SELL MODAL -->
+    <div id="sellModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Mark Vehicle as Sold</h2>
+
+                <button
+                    id="closeSellModal"
+                    class="close-modal"
+                    type="button"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <input id="sellingVehicleId" type="hidden">
+
+            <div class="grid">
+                <div class="field full price-sell">
+                    <span class="field-icon">💵</span>
+                    <label for="actualSellPrice">Actual Sell Price ($)</label>
+                    <input
+                        id="actualSellPrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="35000"
+                    >
+                </div>
+
+                <div class="field full">
+                    <span class="field-icon">📅</span>
+                    <label for="dateSold">Date Sold</label>
+                    <input id="dateSold" type="date">
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button
+                    id="confirmSoldButton"
+                    class="button green"
+                    type="button"
+                >
+                    Confirm Sale
+                </button>
+
+                <button
+                    id="cancelSoldButton"
+                    class="button secondary"
+                    type="button"
+                >
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
 
-    <div id="stage-2">
-        <div class="kurdish-txt">Chand amnt xosh dawy?</div>
-        <img src="https://media.giphy.com/media/PFo2HrqCjC0bm/giphy.gif" class="gif-img">
-        <div class="btn-container">
-            <button onclick="nextStage('zor')">Zor</button>
-            <button onclick="nextStage('zor')">ZORRRR</button>
-            <button id="handak-btn" onmouseover="moveBtn(this)" onclick="moveBtn(this)">Handak</button>
-            <button onclick="nextStage('zor')">GALAK ZOR</button>
-        </div>
-    </div>
+    <div id="toast" class="toast"></div>
 
-    <div id="stage-zor">
-        <div class="kurdish-txt">Zor? Bas Zor? 😘</div>
-        <img src="https://media.giphy.com/media/ytu2GUYbvhz7zShGwS/giphy.gif" class="gif-img">
-        <div class="btn-container">
-            <button onclick="nextStage('final')">GALAK ZOR!</button>
-        </div>
-    </div>
+    <script>
+        "use strict";
 
-    <div id="stage-final">
-        <img src="https://media.giphy.com/media/IzXiddo2twMmdmU8Lv/giphy.gif" class="gif-img">
-        <div style="font-size: 1.8rem; color: var(--gold); font-weight: bold; margin-top:15px;">AMNISH ATUM ZOR XOSH DAWY</div>
-        <div style="font-size: 3rem; margin-top: 10px;">❤️💐❤️</div>
-    </div>
-</div>
+        const STORAGE_KEY = "quickBuySellDataV1";
 
-<script>
-    const music = document.getElementById('bg-music');
+        const defaultState = {
+            startingCapital: 0,
+            addedFunds: 0,
+            vehicles: []
+        };
 
-    function unlockMusic() {
-        document.getElementById('overlay').style.display = 'none';
-        music.play().catch(e => console.log("Music play blocked by browser policy. Interaction was successful but audio failed."));
-    }
+        let state = loadState();
+        let selectedPhotos = [];
 
-    function moveBtn(btn) {
-        // Generates random coordinates to make the button jump away
-        const x = Math.random() * (window.innerWidth - btn.offsetWidth);
-        const y = Math.random() * (window.innerHeight - btn.offsetHeight);
-        btn.style.position = 'fixed';
-        btn.style.left = x + 'px';
-        btn.style.top = y + 'px';
-    }
+        const vehicleForm = document.getElementById("vehicleForm");
+        const dateBoughtInput = document.getElementById("dateBought");
+        const vehiclePhotosInput = document.getElementById("vehiclePhotos");
+        const photoPreview = document.getElementById("photoPreview");
 
-    function nextStage(stageId) {
-        document.querySelectorAll('.ui-wrapper > div').forEach(div => div.style.display = 'none');
-        document.getElementById('stage-' + stageId).style.display = 'block';
-        if(stageId === 'final') startHeavyHearts();
-    }
+        const activeSearch = document.getElementById("activeSearch");
+        const soldSearch = document.getElementById("soldSearch");
+        const priceSearch = document.getElementById("priceSearch");
 
-    // Background Animation (Hearts and Flowers)
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.onresize = resize; resize();
+        const sellModal = document.getElementById("sellModal");
+        const sellingVehicleIdInput =
+            document.getElementById("sellingVehicleId");
+        const actualSellPriceInput =
+            document.getElementById("actualSellPrice");
+        const dateSoldInput = document.getElementById("dateSold");
 
-    class Particle {
-        constructor() { this.reset(); }
-        reset() {
-            this.x = Math.random() * canvas.width;
-            this.y = canvas.height + 50;
-            this.char = Math.random() > 0.5 ? '❤️' : '🌸';
-            this.size = Math.random() * 20 + 10;
-            this.speed = Math.random() * 2 + 1;
+        function loadState() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+
+                if (!stored) {
+                    return structuredClone(defaultState);
+                }
+
+                const parsed = JSON.parse(stored);
+
+                return {
+                    startingCapital:
+                        Number(parsed.startingCapital) || 0,
+
+                    addedFunds:
+                        Number(parsed.addedFunds) || 0,
+
+                    vehicles:
+                        Array.isArray(parsed.vehicles)
+                            ? parsed.vehicles
+                            : []
+                };
+            } catch (error) {
+                console.error("Could not load saved data:", error);
+                return structuredClone(defaultState);
+            }
         }
-        update() { this.y -= this.speed; if (this.y < -50) this.reset(); }
-        draw() { ctx.font = `${this.size}px serif`; ctx.fillText(this.char, this.x, this.y); }
-    }
 
-    for(let i=0; i<30; i++) particles.push(new Particle());
-    function startHeavyHearts() { for(let i=0; i<80; i++) particles.push(new Particle()); }
+        function saveState() {
+            try {
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(state)
+                );
+            } catch (error) {
+                console.error("Could not save data:", error);
 
-    function render() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        requestAnimationFrame(render);
-    }
-    render();
-</script>
-</body>
-</html>
+                showToast(
+                    "Storage is full. Try using fewer or smaller photos."
+                );
+            }
+        }
+
+        function today() {
+            return new Date().toISOString().split("T")[0];
+        }
+
+        function createId() {
+            if (window.crypto && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+
+            return (
+                Date.now().toString(36) +
+                Math.random().toString(36).slice(2)
+            );
+        }
+
+        function money(value) {
+            const amount = Number(value) || 0;
+
+            return new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function number(value) {
+            return new Intl.NumberFormat("en-US").format(
+                Number(value) || 0
+            );
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) {
+                return "No date";
+            }
+
+            const date = new Date(dateString + "T00:00:00");
+
+            return new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }).format(date);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+
+            toast.textContent = message;
+            toast.classList.add("show");
+
+            clearTimeout(showToast.timer);
+
+            showToast.timer = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2600);
+        }
+
+        function calculateCapital() {
+            const activePurchaseTotal = state.vehicles
+                .filter(vehicle => vehicle.status === "active")
+                .reduce(
+                    (total, vehicle) =>
+                        total + Number(vehicle.buyPrice || 0),
+                    0
+                );
+
+            return (
+                Number(state.startingCapital || 0) +
+                Number(state.addedFunds || 0) -
+                activePurchaseTotal
+            );
+        }
+
+        function vehicleFullName(vehicle) {
+            return [
+                vehicle.brand,
+                vehicle.model,
+                vehicle.year,
+                vehicle.trim
+            ]
+                .filter(Boolean)
+                .join(" ");
+        }
+
+        function vehicleMatches(vehicle, query) {
+            const text = [
+                vehicle.brand,
+                vehicle.model,
+                vehicle.trim,
+                vehicle.year,
+                vehicle.mileage,
+                vehicle.accident,
+                vehicle.warranty,
+                vehicle.turbo,
+                vehicle.fuel,
+                vehicle.notes
+            ]
+                .join(" ")
+                .toLowerCase();
+
+            return text.includes(query.toLowerCase().trim());
+        }
+
+        function changePage(pageName) {
+            document.querySelectorAll(".page").forEach(page => {
+                page.classList.remove("active");
+            });
+
+            document.querySelectorAll(".nav-item").forEach(item => {
+                item.classList.remove("active");
+            });
+
+            const targetPage =
+                document.getElementById(`page-${pageName}`);
+
+            const targetNav =
+                document.querySelector(
+                    `.nav-item[data-page="${pageName}"]`
+                );
+
+            if (targetPage) {
+                targetPage.classList.add("active");
+            }
+
+            if (targetNav) {
+                targetNav.classList.add("active");
+            }
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+            renderAll();
+        }
+
+        function renderEmpty(icon, title, text) {
+            return `
+                <div class="empty">
+                    <div class="empty-icon">${icon}</div>
+                    <div class="empty-title">${escapeHtml(title)}</div>
+                    <div class="empty-text">${escapeHtml(text)}</div>
+                </div>
+            `;
+        }
+
+        function renderVehicleCard(vehicle, mode) {
+            const expectedProfit =
+                Number(vehicle.sellPrice) -
+                Number(vehicle.buyPrice);
+
+            const actualProfit =
+                Number(vehicle.actualSellPrice || 0) -
+                Number(vehicle.buyPrice);
+
+            const shownProfit =
+                vehicle.status === "sold"
+                    ? actualProfit
+                    : expectedProfit;
+
+            const profitClass =
+                shownProfit >= 0
+                    ? "profit-positive"
+                    : "profit-negative";
+
+            const cover = vehicle.photos?.[0]
+                ? `<img src="${vehicle.photos[0]}" alt="Vehicle photo">`
+                : `<div class="vehicle-placeholder">🚘</div>`;
+
+            const status =
+                vehicle.status === "sold"
+                    ? "Sold"
+                    : "Active";
+
+            let buttons = "";
+
+            if (mode === "active") {
+                buttons = `
+                    <div class="button-row">
+                        <button
+                            class="button green small"
+                            type="button"
+                            onclick="openSellModal('${vehicle.id}')"
+                        >
+                            🤝 Mark Sold
+                        </button>
+
+                        <button
+                            class="button red small"
+                            type="button"
+                            onclick="deleteVehicle('${vehicle.id}')"
+                        >
+                            🗑️ Delete
+                        </button>
+                    </div>
+                `;
+            }
+
+            if (mode === "sold") {
+                buttons = `
+                    <div class="button-row">
+                        <button
+                            class="button blue small"
+                            type="button"
+                            onclick="returnVehicleToActive('${vehicle.id}')"
+                        >
+                            ↩ Return Active
+                        </button>
+
+                        <button
+                            class="button red small"
+                            type="button"
+                            onclick="deleteVehicle('${vehicle.id}')"
+                        >
+                            🗑️ Delete
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                <article class="vehicle-card">
+                    <div class="vehicle-cover">
+                        ${cover}
+                        <span class="status-badge">${status}</span>
+                    </div>
+
+                    <div class="vehicle-content">
+                        <h3 class="vehicle-name">
+                            ${escapeHtml(vehicleFullName(vehicle))}
+                        </h3>
+
+                        <div class="vehicle-meta">
+                            ${number(vehicle.mileage)} km
+                            · ${escapeHtml(vehicle.turbo)}
+                            · ${escapeHtml(vehicle.fuel)}
+                            <br>
+                            ${escapeHtml(vehicle.accident)}
+                            · ${escapeHtml(vehicle.warranty)}
+                            <br>
+                            Bought: ${formatDate(vehicle.dateBought)}
+                            ${
+                                vehicle.status === "sold"
+                                    ? `<br>Sold: ${formatDate(vehicle.dateSold)}`
+                                    : ""
+                            }
+                            ${
+                                vehicle.notes
+                                    ? `<br>${escapeHtml(vehicle.notes)}`
+                                    : ""
+                            }
+                        </div>
+
+                        <div class="price-row">
+                            <div class="price-box">
+                                <small>Bought</small>
+                                <strong>${money(vehicle.buyPrice)}</strong>
+                            </div>
+
+                            <div class="price-box">
+                                <small>
+                                    ${
+                                        vehicle.status === "sold"
+                                            ? "Sold"
+                                            : "Expected"
+                                    }
+                                </small>
+
+                                <strong>
+                                    ${money(
+                                        vehicle.status === "sold"
+                                            ? vehicle.actualSellPrice
+                                            : vehicle.sellPrice
+                                    )}
+                                </strong>
+                            </div>
+
+                            <div class="price-box">
+                                <small>Profit</small>
+                                <strong class="${profitClass}">
+                                    ${money(shownProfit)}
+                                </strong>
+                            </div>
+                        </div>
+
+                        ${buttons}
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderActiveVehicles() {
+            const query = activeSearch.value || "";
+
+            const activeVehicles = state.vehicles
+                .filter(vehicle => vehicle.status === "active")
+                .filter(vehicle => vehicleMatches(vehicle, query))
+                .sort(
+                    (a, b) =>
+                        new Date(b.createdAt) -
+                        new Date(a.createdAt)
+                );
+
+            const activeTotal = state.vehicles.filter(
+                vehicle => vehicle.status === "active"
+            );
+
+            const expectedProfit = activeTotal.reduce(
+                (total, vehicle) =>
+                    total +
+                    (
+                        Number(vehicle.sellPrice) -
+                        Number(vehicle.buyPrice)
+                    ),
+                0
+            );
+
+            document.getElementById("activeCount").textContent =
+                activeTotal.length;
+
+            document.getElementById("expectedProfit").textContent =
+                money(expectedProfit);
+
+            const list =
+                document.getElementById("activeVehicleList");
+
+            if (!activeVehicles.length) {
+                list.innerHTML = renderEmpty(
+                    "🚘",
+                    query ? "No matching vehicles" : "No active vehicles",
+                    query
+                        ? "Try another search."
+                        : "Add your first vehicle from Quick Trade."
+                );
+
+                return;
+            }
+
+            list.innerHTML = activeVehicles
+                .map(vehicle =>
+                    renderVehicleCard(vehicle, "active")
+                )
+                .join("");
+        }
+
+        function renderSoldVehicles() {
+            const query = soldSearch.value || "";
+
+            const soldVehicles = state.vehicles
+                .filter(vehicle => vehicle.status === "sold")
+                .filter(vehicle => vehicleMatches(vehicle, query))
+                .sort(
+                    (a, b) =>
+                        new Date(b.dateSold || b.createdAt) -
+                        new Date(a.dateSold || a.createdAt)
+                );
+
+            const allSold = state.vehicles.filter(
+                vehicle => vehicle.status === "sold"
+            );
+
+            const totalProfit = allSold.reduce(
+                (total, vehicle) =>
+                    total +
+                    (
+                        Number(vehicle.actualSellPrice || 0) -
+                        Number(vehicle.buyPrice || 0)
+                    ),
+                0
+            );
+
+            document.getElementById("soldCount").textContent =
+                allSold.length;
+
+            document.getElementById("totalProfit").textContent =
+                money(totalProfit);
+
+            const list =
+                document.getElementById("soldVehicleList");
+
+            if (!soldVehicles.length) {
+                list.innerHTML = renderEmpty(
+                    "🤝",
+                    query ? "No matching sales" : "No sold vehicles",
+                    query
+                        ? "Try another search."
+                        : "Vehicles marked as sold will appear here."
+                );
+
+                return;
+            }
+
+            list.innerHTML = soldVehicles
+                .map(vehicle =>
+                    renderVehicleCard(vehicle, "sold")
+                )
+                .join("");
+        }
+
+        function renderPriceReference() {
+            const query = priceSearch.value || "";
+
+            const vehicles = [...state.vehicles]
+                .filter(vehicle => vehicleMatches(vehicle, query))
+                .sort(
+                    (a, b) =>
+                        new Date(b.createdAt) -
+                        new
