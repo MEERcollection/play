@@ -218,36 +218,14 @@
       gap: 8px;
     }
 
-    .btn-orange {
-      background: var(--primary-orange);
-      color: #000;
-    }
-
-    .btn-purple {
-      background: var(--primary-purple);
-      color: #fff;
-    }
-
-    .btn-green {
-      background: var(--green-accent);
-      color: #fff;
-    }
-
-    .btn-whatsapp {
-      background: #25D366;
-      color: #000;
-      font-weight: 800;
-    }
-
-    .btn-import {
-      background: #3b82f6;
-      color: #fff;
-      font-weight: 700;
-    }
+    .btn-orange { background: var(--primary-orange); color: #000; }
+    .btn-purple { background: var(--primary-purple); color: #fff; }
+    .btn-green { background: var(--green-accent); color: #fff; }
+    .btn-whatsapp { background: #25D366; color: #000; font-weight: 800; }
+    .btn-blue { background: #3b82f6; color: #fff; }
 
     .action-row {
       display: flex;
-      flex-direction: column;
       gap: 10px;
     }
 
@@ -268,15 +246,8 @@
       gap: 8px;
     }
 
-    .item-title {
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .item-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+    .item-title { font-weight: 700; font-size: 14px; }
+    .item-sub { font-size: 11px; color: var(--text-muted); }
 
     .item-right {
       display: flex;
@@ -284,17 +255,8 @@
       gap: 8px;
     }
 
-    .deduction-amount {
-      color: var(--red-accent);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .profit-amount {
-      color: var(--green-accent);
-      font-weight: 700;
-      font-size: 14px;
-    }
+    .deduction-amount { color: var(--red-accent); font-weight: 700; font-size: 14px; }
+    .profit-amount { color: var(--green-accent); font-weight: 700; font-size: 14px; }
 
     .action-btn {
       padding: 6px 10px;
@@ -305,15 +267,8 @@
       font-weight: 600;
     }
 
-    .btn-edit {
-      background: #374151;
-      color: #fff;
-    }
-
-    .btn-delete {
-      background: var(--red-accent);
-      color: #fff;
-    }
+    .btn-edit { background: #374151; color: #fff; }
+    .btn-delete { background: var(--red-accent); color: #fff; }
   </style>
 </head>
 <body>
@@ -328,7 +283,6 @@
 
   <!-- TAB 1: VEHICLE ENTRY -->
   <div id="tab-entry" class="tab-content active">
-    
     <div class="card">
       <div class="section-title"><span class="badge-num">1</span> VEHICLE DETAILS 🚗</div>
       <div class="form-grid">
@@ -427,7 +381,6 @@
 
       <button class="btn btn-orange" onclick="saveVehicle()">💾 Save Bought Vehicle</button>
     </div>
-
   </div>
 
   <!-- TAB 2: MY CAPITAL -->
@@ -436,8 +389,8 @@
     <p class="subtitle">Manage total cash reserves and track vehicle purchase deductions.</p>
 
     <div class="action-row">
-      <button class="btn btn-whatsapp" onclick="shareViaWhatsApp()">📲 Share with Partner (WhatsApp)</button>
-      <button class="btn btn-import" onclick="importPastedData()">📥 Import / Paste Partner Data</button>
+      <button class="btn btn-whatsapp" onclick="shareViaWhatsApp()">📲 Send via WhatsApp</button>
+      <button class="btn btn-blue" onclick="importData()">📥 Import Code</button>
     </div>
 
     <div class="stats-grid">
@@ -468,9 +421,7 @@
 
     <div class="card">
       <div class="section-title"><span class="badge-num">2</span> CAPITAL INVENTORY DEDUCTIONS 📊</div>
-      <div class="list-container" id="deductionsList">
-        <!-- Capital Deductions render here -->
-      </div>
+      <div class="list-container" id="deductionsList"></div>
     </div>
   </div>
 
@@ -502,16 +453,12 @@
 
     <div class="card">
       <div class="section-title">ACTIVE INVENTORY (CLICK TO SELL)</div>
-      <div class="list-container" id="inventoryList">
-        <!-- Active inventory items render here -->
-      </div>
+      <div class="list-container" id="inventoryList"></div>
     </div>
 
     <div class="card">
       <div class="section-title">COMPLETED SALES</div>
-      <div class="list-container" id="soldList">
-        <!-- Sold cars render here -->
-      </div>
+      <div class="list-container" id="soldList"></div>
     </div>
   </div>
 
@@ -530,60 +477,51 @@
     const urlParams = new URLSearchParams(window.location.search);
     const syncData = urlParams.get('syncData');
     if (syncData) {
-      applySyncData(syncData);
+      applyData(syncData);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }
 
-  function applySyncData(rawInput) {
+  function applyData(str) {
     try {
-      let parsedString = rawInput;
-      if (rawInput.includes('syncData=')) {
-        parsedString = rawInput.split('syncData=')[1];
+      let raw = str.trim();
+      if (raw.includes('syncData=')) {
+        raw = raw.split('syncData=')[1];
       }
-      const decoded = JSON.parse(decodeURIComponent(parsedString));
+      const decoded = JSON.parse(decodeURIComponent(raw));
       if (decoded.startingCapital !== undefined && Array.isArray(decoded.vehicles)) {
         startingCapital = decoded.startingCapital;
         vehicles = decoded.vehicles;
         localStorage.setItem('startingCapital', startingCapital);
         localStorage.setItem('vehicles', JSON.stringify(vehicles));
-        alert("Synced successfully with partner's updated database!");
+        alert("✅ Data successfully synced!");
         updateUI();
       } else {
-        alert("Invalid code format.");
+        alert("❌ Invalid data structure.");
       }
-    } catch (err) {
-      alert("Unable to parse sync data. Please make sure you copied the entire link or code.");
-    }
-  }
-
-  function importPastedData() {
-    const input = prompt("Paste your partner's shared link or code here:");
-    if (input) {
-      applySyncData(input.trim());
+    } catch (e) {
+      alert("❌ Could not read the data. Please ensure you copied the full message or link.");
     }
   }
 
   function shareViaWhatsApp() {
-    const payload = {
-      startingCapital: startingCapital,
-      vehicles: vehicles
-    };
-    const encodedPayload = encodeURIComponent(JSON.stringify(payload));
-    const shareableUrl = `${window.location.origin}${window.location.pathname}?syncData=${encodedPayload}`;
-    const message = `Here is the latest updated Dealership Ledger & Capital status: ${shareableUrl}`;
-    
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+    const payload = { startingCapital, vehicles };
+    const encoded = encodeURIComponent(JSON.stringify(payload));
+    const shareableUrl = `${window.location.origin}${window.location.pathname}?syncData=${encoded}`;
+    const text = `Dealer Hub Sync Data:\n\n${shareableUrl}`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  function importData() {
+    const input = prompt("Paste your partner's WhatsApp link or data string here:");
+    if (input) applyData(input);
   }
 
   function switchTab(evt, tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    
     document.getElementById(tabId).classList.add('active');
-    if (evt && evt.target) {
-      evt.target.classList.add('active');
-    }
+    if (evt && evt.target) evt.target.classList.add('active');
   }
 
   function updateCapital() {
