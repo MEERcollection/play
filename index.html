@@ -239,6 +239,18 @@
       font-weight: 800;
     }
 
+    .btn-import {
+      background: #3b82f6;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .action-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     .list-container {
       display: flex;
       flex-direction: column;
@@ -423,7 +435,10 @@
     <h1 class="header-title">My <span>Capital</span></h1>
     <p class="subtitle">Manage total cash reserves and track vehicle purchase deductions.</p>
 
-    <button class="btn btn-whatsapp" onclick="shareViaWhatsApp()">📲 Share with Partner (WhatsApp)</button>
+    <div class="action-row">
+      <button class="btn btn-whatsapp" onclick="shareViaWhatsApp()">📲 Share with Partner (WhatsApp)</button>
+      <button class="btn btn-import" onclick="importPastedData()">📥 Import / Paste Partner Data</button>
+    </div>
 
     <div class="stats-grid">
       <div class="stat-card">
@@ -508,7 +523,6 @@
 
   document.getElementById('dateBought').valueAsDate = new Date();
   
-  // Check for auto-sync data in URL parameter when partner opens shared link
   checkUrlSyncData();
   updateUI();
 
@@ -516,20 +530,37 @@
     const urlParams = new URLSearchParams(window.location.search);
     const syncData = urlParams.get('syncData');
     if (syncData) {
-      try {
-        const decoded = JSON.parse(decodeURIComponent(syncData));
-        if (decoded.startingCapital !== undefined && Array.isArray(decoded.vehicles)) {
-          startingCapital = decoded.startingCapital;
-          vehicles = decoded.vehicles;
-          localStorage.setItem('startingCapital', startingCapital);
-          localStorage.setItem('vehicles', JSON.stringify(vehicles));
-          alert("Synced successfully with partner's updated database!");
-          // Clean URL parameter without reloading
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      } catch (err) {
-        console.error("Invalid sync link structure:", err);
+      applySyncData(syncData);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
+  function applySyncData(rawInput) {
+    try {
+      let parsedString = rawInput;
+      if (rawInput.includes('syncData=')) {
+        parsedString = rawInput.split('syncData=')[1];
       }
+      const decoded = JSON.parse(decodeURIComponent(parsedString));
+      if (decoded.startingCapital !== undefined && Array.isArray(decoded.vehicles)) {
+        startingCapital = decoded.startingCapital;
+        vehicles = decoded.vehicles;
+        localStorage.setItem('startingCapital', startingCapital);
+        localStorage.setItem('vehicles', JSON.stringify(vehicles));
+        alert("Synced successfully with partner's updated database!");
+        updateUI();
+      } else {
+        alert("Invalid code format.");
+      }
+    } catch (err) {
+      alert("Unable to parse sync data. Please make sure you copied the entire link or code.");
+    }
+  }
+
+  function importPastedData() {
+    const input = prompt("Paste your partner's shared link or code here:");
+    if (input) {
+      applySyncData(input.trim());
     }
   }
 
@@ -659,7 +690,7 @@
     
     const totalCost = vehicle.boughtPrice + (vehicle.plateCost || 0);
     const totalNetProfit = vehicle.actualSellPrice - totalCost;
-    vehicle.profit = totalNetProfit / 2; // 50% split with partner
+    vehicle.profit = totalNetProfit / 2;
 
     saveAndRefresh();
   }
