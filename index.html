@@ -1,465 +1,361 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vehicle Management & Profit Tracker</title>
+  <title>ApexTrack — Fleet & Profit Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkbg: '#05070a',
+            surface: '#0d131f',
+            surfacelight: '#151d2d',
+            bordercol: '#1e293b',
+            accent: {
+              purple: '#9333ea',
+              purpleHover: '#a855f7',
+              orange: '#f59e0b',
+              emerald: '#10b981',
+              rose: '#f43f5e',
+              blue: '#3b82f6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --bg-dark: #0b0f19;
-      --card-bg: #111827;
-      --card-border: #1f2937;
-      --input-bg: #090d16;
-      --primary-purple: #8b5cf6;
-      --primary-orange: #f59e0b;
-      --green-accent: #10b981;
-      --red-accent: #ef4444;
-      --text-main: #f9fafb;
-      --text-muted: #9ca3af;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 600px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .nav-tabs {
-      display: flex;
-      gap: 10px;
-      background: var(--card-bg);
-      padding: 6px;
-      border-radius: 12px;
-      border: 1px solid var(--card-border);
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .tab-btn.active {
-      background: var(--primary-purple);
-      color: #fff;
-    }
-
-    .tab-content {
-      display: none;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .tab-content.active {
-      display: flex;
-    }
-
-    .header-title {
-      font-size: 28px;
-      font-weight: 800;
-    }
-
-    .header-title span {
-      color: #60a5fa;
-    }
-
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-top: -12px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .stat-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .stat-icon {
-      font-size: 24px;
-      background: #1f2937;
-      padding: 8px;
-      border-radius: 10px;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 700;
-    }
-
-    .stat-value {
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .val-purple { color: #a78bfa; }
-    .val-green { color: var(--green-accent); }
-    .val-blue { color: #60a5fa; }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-
-    .badge-num {
-      background: var(--primary-orange);
-      color: #000;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-group.full {
-      grid-column: span 2;
-    }
-
-    label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-
-    .input-box {
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .input-box input, .input-box select {
-      background: transparent;
-      border: none;
-      color: #fff;
-      width: 100%;
-      outline: none;
-      font-size: 14px;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-orange { background: var(--primary-orange); color: #000; }
-    .btn-purple { background: var(--primary-purple); color: #fff; }
-    .btn-green { background: var(--green-accent); color: #fff; }
-    .btn-whatsapp { background: #25D366; color: #000; font-weight: 800; }
-    .btn-blue { background: #3b82f6; color: #fff; }
-
-    .action-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .list-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .list-item {
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .item-title { font-weight: 700; font-size: 14px; }
-    .item-sub { font-size: 11px; color: var(--text-muted); }
-
-    .item-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .deduction-amount { color: var(--red-accent); font-weight: 700; font-size: 14px; }
-    .profit-amount { color: var(--green-accent); font-weight: 700; font-size: 14px; }
-
-    .action-btn {
-      padding: 6px 10px;
-      font-size: 12px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .btn-edit { background: #374151; color: #fff; }
-    .btn-delete { background: var(--red-accent); color: #fff; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #05070a; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
   </style>
 </head>
-<body>
+<body class="bg-darkbg text-slate-100 min-h-screen flex justify-center p-3 sm:p-6 selection:bg-purple-500 selection:text-white">
 
-<div class="container">
+<div class="w-full max-w-xl flex flex-col gap-6">
   
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab(event, 'tab-entry')">Add Vehicle</button>
-    <button class="tab-btn" onclick="switchTab(event, 'tab-capital')">My Capital</button>
-    <button class="tab-btn" onclick="switchTab(event, 'tab-ledger')">Profit Ledger</button>
-  </div>
+  <!-- Header / Nav -->
+  <header class="flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-900/30 text-white font-black text-lg">
+          <i class="fa-solid fa-gauge-high"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">ApexTrack</h1>
+          <p class="text-xs text-slate-400 font-medium">Vehicle Asset & Profit Ledger</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="shareViaWhatsApp()" title="Share via WhatsApp" class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 transition-all flex items-center justify-center text-sm">
+          <i class="fa-brands fa-whatsapp fa-lg"></i>
+        </button>
+        <button onclick="importData()" title="Import Data Code" class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white transition-all flex items-center justify-center text-sm">
+          <i class="fa-solid fa-code-merge"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="grid grid-cols-3 gap-1 bg-surface p-1.5 rounded-2xl border border-bordercol shadow-inner">
+      <button onclick="switchTab(event, 'tab-entry')" class="tab-btn active py-2.5 px-3 rounded-xl font-bold text-xs tracking-wide transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+        <i class="fa-solid fa-circle-plus text-sm"></i> Add Vehicle
+      </button>
+      <button onclick="switchTab(event, 'tab-capital')" class="tab-btn py-2.5 px-3 rounded-xl font-bold text-xs tracking-wide transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+        <i class="fa-solid fa-vault text-sm"></i> Capital
+      </button>
+      <button onclick="switchTab(event, 'tab-ledger')" class="tab-btn py-2.5 px-3 rounded-xl font-bold text-xs tracking-wide transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+        <i class="fa-solid fa-chart-line text-sm"></i> Ledger
+      </button>
+    </div>
+  </header>
 
   <!-- TAB 1: VEHICLE ENTRY -->
-  <div id="tab-entry" class="tab-content active">
-    <div class="card">
-      <div class="section-title"><span class="badge-num">1</span> VEHICLE DETAILS 🚗</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Brand</label>
-          <div class="input-box"><input type="text" id="brand" placeholder="Toyota"></div>
-        </div>
-        <div class="form-group">
-          <label>Model</label>
-          <div class="input-box"><input type="text" id="model" placeholder="Hilux"></div>
-        </div>
-        <div class="form-group">
-          <label>Trim / Edition</label>
-          <div class="input-box"><input type="text" id="trim" placeholder="Double Cab 4x4"></div>
-        </div>
-        <div class="form-group">
-          <label>Year</label>
-          <div class="input-box"><input type="number" id="year" placeholder="2026"></div>
-        </div>
-        <div class="form-group full">
-          <label>KM / Mileage</label>
-          <div class="input-box"><input type="number" id="mileage" placeholder="0"></div>
-        </div>
+  <div id="tab-entry" class="tab-content active flex-col gap-5">
+    
+    <!-- Vehicle Details -->
+    <div class="bg-surface border border-bordercol rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+      <div class="flex items-center gap-2.5 text-xs font-black tracking-wider text-slate-300">
+        <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-xs font-bold">1</span>
+        VEHICLE SPECIFICATIONS
       </div>
-    </div>
-
-    <div class="card">
-      <div class="section-title"><span class="badge-num">2</span> VEHICLE CONDITION 📋</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Accident History</label>
-          <div class="input-box">
-            <select id="accident">
-              <option>Clean (No Crash)</option>
-              <option>Minor Damage</option>
-              <option>Repaired</option>
-            </select>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Brand</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-car text-slate-500 text-xs"></i>
+            <input type="text" id="brand" placeholder="e.g. Toyota" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
           </div>
         </div>
-        <div class="form-group">
-          <label>Warranty Status</label>
-          <div class="input-box">
-            <select id="warranty">
-              <option>No Warranty</option>
-              <option>Active Warranty</option>
-            </select>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Model</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-tag text-slate-500 text-xs"></i>
+            <input type="text" id="model" placeholder="e.g. Hilux" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
           </div>
         </div>
-        <div class="form-group">
-          <label>Turbo Option</label>
-          <div class="input-box">
-            <select id="turbo">
-              <option>Non-Turbo</option>
-              <option>Turbocharged</option>
-            </select>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trim / Edition</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-layer-group text-slate-500 text-xs"></i>
+            <input type="text" id="trim" placeholder="Double Cab 4x4" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
           </div>
         </div>
-        <div class="form-group">
-          <label>Fuel Type</label>
-          <div class="input-box">
-            <select id="fuel">
-              <option>Gasoline</option>
-              <option>Diesel</option>
-              <option>Hybrid</option>
-              <option>Electric</option>
-            </select>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Year</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-calendar text-slate-500 text-xs"></i>
+            <input type="number" id="year" placeholder="2026" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
+          </div>
+        </div>
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">KM / Mileage</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-road text-slate-500 text-xs"></i>
+            <input type="number" id="mileage" placeholder="0" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
           </div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title"><span class="badge-num">3</span> PRICING & PURCHASE DATE 📈</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Bought Price ($)</label>
-          <div class="input-box"><input type="number" id="boughtPrice" placeholder="30000"></div>
+    <!-- Vehicle Condition -->
+    <div class="bg-surface border border-bordercol rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+      <div class="flex items-center gap-2.5 text-xs font-black tracking-wider text-slate-300">
+        <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-xs font-bold">2</span>
+        CONDITION & OPTIONS
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Accident History</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3 py-2 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-car-burst text-slate-500 text-xs"></i>
+            <select id="accident" class="bg-transparent border-none text-white text-xs w-full outline-none cursor-pointer">
+              <option class="bg-surface">Clean (No Crash)</option>
+              <option class="bg-surface">Minor Damage</option>
+              <option class="bg-surface">Repaired</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Plate Number Cost ($)</label>
-          <div class="input-box"><input type="number" id="plateCost" placeholder="e.g. 1050"></div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Warranty Status</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3 py-2 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-shield-halved text-slate-500 text-xs"></i>
+            <select id="warranty" class="bg-transparent border-none text-white text-xs w-full outline-none cursor-pointer">
+              <option class="bg-surface">No Warranty</option>
+              <option class="bg-surface">Active Warranty</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group full">
-          <label>Target Sell Price ($)</label>
-          <div class="input-box"><input type="number" id="targetSellPrice" placeholder="35000"></div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Engine Induction</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3 py-2 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-gauge text-slate-500 text-xs"></i>
+            <select id="turbo" class="bg-transparent border-none text-white text-xs w-full outline-none cursor-pointer">
+              <option class="bg-surface">Non-Turbo</option>
+              <option class="bg-surface">Turbocharged</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group full">
-          <label>Date Bought</label>
-          <div class="input-box"><input type="date" id="dateBought"></div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fuel Type</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3 py-2 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-gas-pump text-slate-500 text-xs"></i>
+            <select id="fuel" class="bg-transparent border-none text-white text-xs w-full outline-none cursor-pointer">
+              <option class="bg-surface">Gasoline</option>
+              <option class="bg-surface">Diesel</option>
+              <option class="bg-surface">Hybrid</option>
+              <option class="bg-surface">Electric</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group full">
-          <label>Notes / Extra Details</label>
-          <div class="input-box"><input type="text" id="notes" placeholder="Clean title, direct trade"></div>
+      </div>
+    </div>
+
+    <!-- Pricing & Dates -->
+    <div class="bg-surface border border-bordercol rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+      <div class="flex items-center gap-2.5 text-xs font-black tracking-wider text-slate-300">
+        <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-xs font-bold">3</span>
+        FINANCIALS & DATE
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bought Price ($)</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-dollar-sign text-slate-500 text-xs"></i>
+            <input type="number" id="boughtPrice" placeholder="30000" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Plate Cost ($)</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-id-card text-slate-500 text-xs"></i>
+            <input type="number" id="plateCost" placeholder="1050" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
+          </div>
+        </div>
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Sell Price ($)</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-bullseye text-slate-500 text-xs"></i>
+            <input type="number" id="targetSellPrice" placeholder="35000" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
+          </div>
+        </div>
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date Bought</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-calendar-days text-slate-500 text-xs"></i>
+            <input type="date" id="dateBought" class="bg-transparent border-none text-white text-sm w-full outline-none">
+          </div>
+        </div>
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Notes / Extra Details</label>
+          <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+            <i class="fa-solid fa-note-sticky text-slate-500 text-xs"></i>
+            <input type="text" id="notes" placeholder="Clean title, direct trade" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
+          </div>
         </div>
       </div>
 
-      <button class="btn btn-orange" onclick="saveVehicle()">💾 Save Bought Vehicle</button>
+      <button onclick="saveVehicle()" class="mt-2 w-full py-3.5 px-5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+        <i class="fa-solid fa-floppy-disk text-base"></i> Save Bought Vehicle
+      </button>
     </div>
+
   </div>
 
   <!-- TAB 2: MY CAPITAL -->
-  <div id="tab-capital" class="tab-content">
-    <h1 class="header-title">My <span>Capital</span></h1>
-    <p class="subtitle">Manage total cash reserves and track vehicle purchase deductions.</p>
-
-    <div class="action-row">
-      <button class="btn btn-whatsapp" onclick="shareViaWhatsApp()">📲 Send via WhatsApp</button>
-      <button class="btn btn-blue" onclick="importData()">📥 Import Code</button>
+  <div id="tab-capital" class="tab-content flex-col gap-5">
+    
+    <div>
+      <h2 class="text-2xl font-black tracking-tight">My <span class="text-purple-400">Capital</span></h2>
+      <p class="text-slate-400 text-xs mt-1">Manage total cash reserves and track vehicle purchase capital deductions.</p>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">💼</div>
-        <div>
-          <div class="stat-label">Starting Capital</div>
-          <div class="stat-value val-purple" id="displayStartingCapital">$0</div>
+    <!-- Quick Stat Cards -->
+    <div class="grid grid-cols-2 gap-3">
+      <div class="bg-surface border border-bordercol rounded-2xl p-4 flex items-center gap-3.5 shadow-xl">
+        <div class="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-lg flex-shrink-0">
+          <i class="fa-solid fa-briefcase"></i>
+        </div>
+        <div class="overflow-hidden">
+          <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Starting Capital</div>
+          <div class="text-lg font-black text-purple-300 truncate" id="displayStartingCapital">$0</div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">💵</div>
-        <div>
-          <div class="stat-label">Available Cash</div>
-          <div class="stat-value val-green" id="displayAvailableCash">$0</div>
+      <div class="bg-surface border border-bordercol rounded-2xl p-4 flex items-center gap-3.5 shadow-xl">
+        <div class="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg flex-shrink-0">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+        <div class="overflow-hidden">
+          <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Available Cash</div>
+          <div class="text-lg font-black text-emerald-400 truncate" id="displayAvailableCash">$0</div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title"><span class="badge-num">1</span> SET / ADD TOTAL FUNDS 🏦</div>
-      <div class="form-group">
-        <label>Enter Capital Amount ($)</label>
-        <div class="input-box"><input type="number" id="capitalInput" placeholder="e.g. 140000"></div>
+    <!-- Set Capital -->
+    <div class="bg-surface border border-bordercol rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+      <div class="flex items-center gap-2.5 text-xs font-black tracking-wider text-slate-300">
+        <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center text-xs font-bold">1</span>
+        UPDATE TOTAL FUNDS
       </div>
-      <button class="btn btn-purple" onclick="updateCapital()">💾 Update Capital Funds</button>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Enter Capital Amount ($)</label>
+        <div class="bg-darkbg border border-bordercol rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-purple-500 transition-colors">
+          <i class="fa-solid fa-vault text-slate-500 text-xs"></i>
+          <input type="number" id="capitalInput" placeholder="e.g. 140000" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-600">
+        </div>
+      </div>
+      <button onclick="updateCapital()" class="w-full py-3.5 px-5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-sm shadow-lg shadow-purple-600/20 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+        <i class="fa-solid fa-arrows-rotate text-sm"></i> Update Capital Funds
+      </button>
     </div>
 
-    <div class="card">
-      <div class="section-title"><span class="badge-num">2</span> CAPITAL INVENTORY DEDUCTIONS 📊</div>
-      <div class="list-container" id="deductionsList"></div>
+    <!-- Deductions List -->
+    <div class="bg-surface border border-bordercol rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+      <div class="flex items-center gap-2.5 text-xs font-black tracking-wider text-slate-300">
+        <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center text-xs font-bold">2</span>
+        CAPITAL INVENTORY DEDUCTIONS
+      </div>
+      <div id="deductionsList" class="flex flex-col gap-2.5"></div>
     </div>
+
   </div>
 
   <!-- TAB 3: CARS SOLD & PROFIT LEDGER -->
-  <div id="tab-ledger" class="tab-content">
-    <h1 class="header-title">Cars Sold & <span>Profit Ledger</span></h1>
-    <p class="subtitle">Comprehensive record of completed car sales & net revenue.</p>
+  <div id="tab-ledger" class="tab-content flex-col gap-5">
+    
+    <div>
+      <h2 class="text-2xl font-black tracking-tight">Cars Sold & <span class="text-emerald-400">Profit Ledger</span></h2>
+      <p class="text-slate-400 text-xs mt-1">Real-time calculations for total net gains and individual 50/50 partner splits.</p>
+    </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">💰</div>
-        <div>
-          <div class="stat-label">Total Lifetime Profit</div>
-          <div class="stat-value val-green" id="displayLifetimeProfit">$0</div>
-        </div>
+    <!-- Lifetime Profit Overview -->
+    <div class="bg-surface border border-bordercol rounded-2xl p-4 flex items-center gap-3.5 shadow-xl">
+      <div class="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg flex-shrink-0">
+        <i class="fa-solid fa-chart-pie"></i>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">📅</div>
-        <div>
-          <div class="stat-label">This Month Profit</div>
-          <div class="stat-value val-blue" id="displayMonthProfit">$0</div>
-        </div>
+      <div class="overflow-hidden flex-1">
+        <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Lifetime Net Profit</div>
+        <div class="text-lg font-black text-emerald-400 truncate" id="displayLifetimeProfit">$0</div>
       </div>
     </div>
 
-    <div class="input-box">
-      🔍 <input type="text" id="searchInput" placeholder="Search Sold Vehicles..." oninput="renderLedger()">
+    <!-- Monthly Automatic Calculator & 50/50 Split -->
+    <div class="grid grid-cols-2 gap-3">
+      <!-- Total Month Profit -->
+      <div class="bg-surface border border-bordercol rounded-2xl p-4 flex items-center gap-3.5 shadow-xl">
+        <div class="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-lg flex-shrink-0">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div class="overflow-hidden flex-1">
+          <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider truncate">This Month Total</div>
+          <div class="text-base font-black text-blue-400 truncate" id="displayMonthProfit">$0</div>
+        </div>
+      </div>
+
+      <!-- Divided by 2 (Per Person) -->
+      <div class="bg-surface border border-purple-500/30 bg-purple-500/[0.03] rounded-2xl p-4 flex items-center gap-3.5 shadow-xl">
+        <div class="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-lg flex-shrink-0">
+          <i class="fa-solid fa-user-group"></i>
+        </div>
+        <div class="overflow-hidden flex-1">
+          <div class="text-[10px] uppercase font-bold text-purple-400 tracking-wider truncate">Split (/2 Each)</div>
+          <div class="text-base font-black text-purple-300 truncate" id="displayMonthSplit">$0</div>
+        </div>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">ACTIVE INVENTORY (CLICK TO SELL)</div>
-      <div class="list-container" id="inventoryList"></div>
+    <!-- Search Input -->
+    <div class="bg-surface border border-bordercol rounded-2xl px-4 py-3 flex items-center gap-3 shadow-inner focus-within:border-purple-500 transition-colors">
+      <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
+      <input type="text" id="searchInput" placeholder="Search Sold or Active Vehicles..." oninput="renderLedger()" class="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-slate-500">
     </div>
 
-    <div class="card">
-      <div class="section-title">COMPLETED SALES</div>
-      <div class="list-container" id="soldList"></div>
+    <!-- Active Inventory Section -->
+    <div class="bg-surface border border-bordercol rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+      <div class="text-xs font-black tracking-wider text-slate-300 flex items-center gap-2">
+        <i class="fa-solid fa-car text-amber-400"></i> ACTIVE INVENTORY (CLICK TO SELL)
+      </div>
+      <div id="inventoryList" class="flex flex-col gap-2.5"></div>
     </div>
+
+    <!-- Completed Sales Section -->
+    <div class="bg-surface border border-bordercol rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+      <div class="text-xs font-black tracking-wider text-slate-300 flex items-center gap-2">
+        <i class="fa-solid fa-receipt text-emerald-400"></i> COMPLETED SALES
+      </div>
+      <div id="soldList" class="flex flex-col gap-2.5"></div>
+    </div>
+
   </div>
 
 </div>
@@ -508,7 +404,7 @@
     const payload = { startingCapital, vehicles };
     const encoded = encodeURIComponent(JSON.stringify(payload));
     const shareableUrl = `${window.location.origin}${window.location.pathname}?syncData=${encoded}`;
-    const text = `Dealer Hub Sync Data:\n\n${shareableUrl}`;
+    const text = `ApexTrack Fleet Data:\n\n${shareableUrl}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   }
 
@@ -518,11 +414,31 @@
   }
 
   function switchTab(evt, tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    if (evt && evt.target) evt.target.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(el => {
+      el.classList.remove('active');
+      el.style.display = 'none';
+    });
+    document.querySelectorAll('.tab-btn').forEach(el => {
+      el.classList.remove('active', 'bg-surface', 'text-white', 'shadow-md');
+      el.classList.add('text-slate-400');
+    });
+
+    const targetTab = document.getElementById(tabId);
+    targetTab.classList.add('active');
+    targetTab.style.display = 'flex';
+
+    let btn = evt ? evt.currentTarget : document.querySelector(`[onclick*="${tabId}"]`);
+    if (btn) {
+      btn.classList.add('active', 'bg-surface', 'text-white', 'shadow-md');
+      btn.classList.remove('text-slate-400');
+    }
   }
+
+  document.querySelectorAll('.tab-content').forEach(el => {
+    if(!el.classList.contains('active')) el.style.display = 'none';
+  });
+  const activeTabBtn = document.querySelector('.tab-btn');
+  if(activeTabBtn) activeTabBtn.classList.add('bg-surface', 'text-white', 'shadow-md');
 
   function updateCapital() {
     const val = parseFloat(document.getElementById('capitalInput').value);
@@ -569,6 +485,9 @@
     document.getElementById('plateCost').value = '';
     document.getElementById('targetSellPrice').value = '';
     document.getElementById('notes').value = '';
+    document.getElementById('mileage').value = '';
+    
+    switchTab(null, 'tab-ledger');
   }
 
   function editDeduction(id) {
@@ -598,7 +517,7 @@
       
       if (vehicle.isSold) {
         const totalCost = vehicle.boughtPrice + (vehicle.plateCost || 0);
-        vehicle.profit = (vehicle.actualSellPrice - totalCost) / 2;
+        vehicle.profit = vehicle.actualSellPrice - totalCost;
       }
 
       saveAndRefresh();
@@ -627,8 +546,7 @@
     vehicle.dateSold = new Date().toISOString().split('T')[0];
     
     const totalCost = vehicle.boughtPrice + (vehicle.plateCost || 0);
-    const totalNetProfit = vehicle.actualSellPrice - totalCost;
-    vehicle.profit = totalNetProfit / 2;
+    vehicle.profit = vehicle.actualSellPrice - totalCost;
 
     saveAndRefresh();
   }
@@ -653,21 +571,21 @@
     const activeDeductions = vehicles.filter(v => !v.isSold);
     
     if (activeDeductions.length === 0) {
-      deductionsList.innerHTML = `<div class="item-sub">No active inventory deductions.</div>`;
+      deductionsList.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No active inventory deductions.</div>`;
     } else {
       activeDeductions.forEach(v => {
         const totalDeduction = v.boughtPrice + (v.plateCost || 0);
         const plateText = v.plateCost ? ` + $${v.plateCost.toLocaleString()} Plate` : '';
         deductionsList.innerHTML += `
-          <div class="list-item">
-            <div>
-              <div class="item-title">${v.title}</div>
-              <div class="item-sub">Bought: ${v.dateBought} (${v.notes || 'Clean'}${plateText})</div>
+          <div class="bg-darkbg border border-bordercol rounded-xl p-3.5 flex justify-between items-center gap-3">
+            <div class="overflow-hidden">
+              <div class="font-bold text-xs truncate">${v.title}</div>
+              <div class="text-[11px] text-slate-400 truncate mt-0.5">Bought: ${v.dateBought} (${v.notes || 'Clean'}${plateText})</div>
             </div>
-            <div class="item-right">
-              <div class="deduction-amount">-$${totalDeduction.toLocaleString()}</div>
-              <button class="action-btn btn-edit" onclick="editDeduction(${v.id})">Edit</button>
-              <button class="action-btn btn-delete" onclick="deleteVehicle(${v.id})">✕</button>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <div class="text-rose-400 font-extrabold text-xs">-$${totalDeduction.toLocaleString()}</div>
+              <button onclick="editDeduction(${v.id})" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold transition-colors">Edit</button>
+              <button onclick="deleteVehicle(${v.id})" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white flex items-center justify-center text-xs transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
           </div>
         `;
@@ -683,8 +601,11 @@
       .filter(v => v.isSold && v.dateSold && v.dateSold.startsWith(currentMonth))
       .reduce((sum, v) => sum + v.profit, 0);
 
+    const thisMonthSplit = thisMonthProfit / 2;
+
     document.getElementById('displayLifetimeProfit').textContent = `$${lifetimeProfit.toLocaleString()}`;
     document.getElementById('displayMonthProfit').textContent = `$${thisMonthProfit.toLocaleString()}`;
+    document.getElementById('displayMonthSplit').textContent = `$${thisMonthSplit.toLocaleString()}`;
 
     renderLedger();
   }
@@ -697,17 +618,17 @@
     const activeItems = vehicles.filter(v => !v.isSold && v.title.toLowerCase().includes(query));
     
     if (activeItems.length === 0) {
-      inventoryList.innerHTML = `<div class="item-sub">No active inventory found.</div>`;
+      inventoryList.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No matching active inventory found.</div>`;
     } else {
       activeItems.forEach(v => {
         const totalCost = v.boughtPrice + (v.plateCost || 0);
         inventoryList.innerHTML += `
-          <div class="list-item">
-            <div>
-              <div class="item-title">${v.title}</div>
-              <div class="item-sub">Cost: $${totalCost.toLocaleString()} | Target: $${v.targetSellPrice.toLocaleString()}</div>
+          <div class="bg-darkbg border border-bordercol rounded-xl p-3.5 flex justify-between items-center gap-3">
+            <div class="overflow-hidden">
+              <div class="font-bold text-xs truncate">${v.title}</div>
+              <div class="text-[11px] text-slate-400 truncate mt-0.5">Cost: $${totalCost.toLocaleString()} | Target: $${v.targetSellPrice.toLocaleString()}</div>
             </div>
-            <button class="action-btn btn-green" onclick="sellVehicle(${v.id})">Mark Sold</button>
+            <button onclick="sellVehicle(${v.id})" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex-shrink-0 transition-colors shadow-sm">Mark Sold</button>
           </div>
         `;
       });
@@ -718,18 +639,22 @@
     const soldItems = vehicles.filter(v => v.isSold && v.title.toLowerCase().includes(query));
 
     if (soldItems.length === 0) {
-      soldList.innerHTML = `<div class="item-sub">No completed sales recorded.</div>`;
+      soldList.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No completed sales recorded.</div>`;
     } else {
       soldItems.forEach(v => {
         const totalCost = v.boughtPrice + (v.plateCost || 0);
         const sign = v.profit >= 0 ? '+' : '';
+        const eachSplit = v.profit / 2;
         soldList.innerHTML += `
-          <div class="list-item">
-            <div>
-              <div class="item-title">${v.title}</div>
-              <div class="item-sub">Total Cost: $${totalCost.toLocaleString()} | Sold: $${v.actualSellPrice.toLocaleString()} (${v.dateSold})</div>
+          <div class="bg-darkbg border border-bordercol rounded-xl p-3.5 flex justify-between items-center gap-3">
+            <div class="overflow-hidden">
+              <div class="font-bold text-xs truncate">${v.title}</div>
+              <div class="text-[11px] text-slate-400 truncate mt-0.5">Total Cost: $${totalCost.toLocaleString()} | Sold: $${v.actualSellPrice.toLocaleString()} (${v.dateSold})</div>
             </div>
-            <div class="profit-amount">${sign}$${v.profit.toLocaleString()} Profit (50%)</div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-emerald-400 font-extrabold text-xs">${sign}$${v.profit.toLocaleString()} Total</div>
+              <div class="text-purple-400 font-semibold text-[10px]">${sign}$${eachSplit.toLocaleString()} / person</div>
+            </div>
           </div>
         `;
       });
